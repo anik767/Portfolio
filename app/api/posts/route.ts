@@ -18,25 +18,53 @@ async function checkAuth() {
 // GET → fetch all posts
 export async function GET() {
   try {
+    console.log("Fetching posts from database...");
     const client = await clientPromise;
+    console.log("MongoDB client connected");
+    
     const db = client.db("mydb");
+    console.log("Database 'mydb' accessed");
+    
     const posts = await db.collection("posts").find().sort({ createdAt: -1 }).toArray();
+    console.log(`Found ${posts.length} posts in database`);
     
     // Convert ObjectId to string for JSON serialization
-    const serializedPosts = posts.map(post => ({
-      ...post,
-      _id: post._id.toString(),
-    }));
+    const serializedPosts = posts.map(post => {
+      try {
+        return {
+          ...post,
+          _id: post._id.toString(),
+          category: post.category ? (typeof post.category === 'object' ? post.category.toString() : post.category) : undefined,
+        };
+      } catch (e) {
+        console.error("Error serializing post:", e, post);
+        return {
+          ...post,
+          _id: String(post._id),
+        };
+      }
+    });
     
+    console.log(`Returning ${serializedPosts.length} serialized posts`);
     return NextResponse.json({ success: true, posts: serializedPosts });
   } catch (error) {
     console.error("Error fetching posts:", error);
     const errorMessage = error instanceof Error ? error.message : "Failed to fetch posts";
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    // Log full error details
+    console.error("Full error details:", {
+      message: errorMessage,
+      stack: errorStack,
+      error: error
+    });
+    
     return NextResponse.json({ 
       success: false, 
       error: errorMessage,
+      errorDetails: process.env.NODE_ENV === "development" ? errorStack : undefined,
       posts: [] // Return empty array on error
-    });
+    }, { status: 500 });
   }
 }
 

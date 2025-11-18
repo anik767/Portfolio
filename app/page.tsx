@@ -20,37 +20,59 @@ export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     async function fetchData() {
       try {
+        setError("");
         // Fetch posts
         const postsRes = await fetch("/api/posts", {
-          cache: "no-store", // Ensure fresh data
+          cache: "no-store",
         });
+        
+        if (!postsRes.ok) {
+          throw new Error(`HTTP error! status: ${postsRes.status}`);
+        }
+        
         const postsData = await postsRes.json();
-        console.log("Posts data:", postsData); // Debug log
-        if (postsData.success && postsData.posts) {
-          setPosts(postsData.posts);
+        console.log("Posts API Response:", postsData); // Debug log
+        
+        if (postsData.success) {
+          if (Array.isArray(postsData.posts)) {
+            setPosts(postsData.posts);
+            console.log(`Loaded ${postsData.posts.length} posts`); // Debug log
+          } else {
+            console.error("Posts is not an array:", postsData.posts);
+            setPosts([]);
+            setError("Invalid posts data format");
+          }
         } else {
-          console.error("Failed to load posts:", postsData.error);
+          console.error("API returned error:", postsData.error);
           setPosts([]);
+          setError(postsData.error || "Failed to load posts");
         }
 
         // Fetch categories
         const categoriesRes = await fetch("/api/categories", {
-          cache: "no-store", // Ensure fresh data
+          cache: "no-store",
         });
-        const categoriesData = await categoriesRes.json();
-        console.log("Categories data:", categoriesData); // Debug log
-        if (categoriesData.success && categoriesData.categories) {
-          setCategories(categoriesData.categories);
+        
+        if (!categoriesRes.ok) {
+          console.warn("Categories fetch failed:", categoriesRes.status);
         } else {
-          console.error("Failed to load categories:", categoriesData.error);
-          setCategories([]);
+          const categoriesData = await categoriesRes.json();
+          console.log("Categories API Response:", categoriesData); // Debug log
+          if (categoriesData.success && Array.isArray(categoriesData.categories)) {
+            setCategories(categoriesData.categories);
+          } else {
+            setCategories([]);
+          }
         }
       } catch (err) {
         console.error("Failed to load data:", err);
+        const errorMsg = err instanceof Error ? err.message : "Unknown error occurred";
+        setError(`Error: ${errorMsg}`);
         setPosts([]);
         setCategories([]);
       } finally {
@@ -103,7 +125,24 @@ export default function Home() {
           </p>
         </header>
 
-        {posts.length === 0 ? (
+        {error && (
+          <div style={{
+            marginBottom: "30px",
+            padding: "20px",
+            background: "#fee",
+            border: "1px solid #fcc",
+            borderRadius: "8px",
+            color: "#c33"
+          }}>
+            <strong>Error:</strong> {error}
+            <br />
+            <small style={{ marginTop: "8px", display: "block" }}>
+              Check browser console (F12) for more details. Make sure your MongoDB connection is working.
+            </small>
+          </div>
+        )}
+
+        {posts.length === 0 && !loading ? (
           <div style={{
             textAlign: "center",
             padding: "80px 20px",
@@ -113,13 +152,26 @@ export default function Home() {
           }}>
             <div style={{ fontSize: "64px", marginBottom: "24px" }}>📝</div>
             <h2 style={{ fontSize: "24px", fontWeight: "600", color: "#2d3748", marginBottom: "12px" }}>
-              No posts yet
+              {error ? "Error loading posts" : "No posts yet"}
             </h2>
             <p style={{ fontSize: "16px", color: "#718096" }}>
-              Check back soon for new content!
+              {error 
+                ? "Please check your database connection and try again." 
+                : "Check back soon for new content!"}
             </p>
+            {error && (
+              <div style={{ marginTop: "20px", fontSize: "14px", color: "#999" }}>
+                <p>Debug steps:</p>
+                <ul style={{ textAlign: "left", display: "inline-block", marginTop: "10px" }}>
+                  <li>Check MongoDB connection string in environment variables</li>
+                  <li>Verify database name is &quot;mydb&quot;</li>
+                  <li>Check if &quot;posts&quot; collection exists</li>
+                  <li>Visit /api/test-db to test connection</li>
+                </ul>
+              </div>
+            )}
           </div>
-        ) : (
+        ) : posts.length > 0 ? (
           <div style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))",
@@ -223,7 +275,7 @@ export default function Home() {
               </div>
             ))}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
