@@ -19,8 +19,42 @@ async function checkAuth() {
 export async function GET() {
   try {
     console.log("Fetching posts from database...");
-    const client = await clientPromise;
-    console.log("MongoDB client connected");
+    
+    // Check if MONGODB_URI is set
+    if (!process.env.MONGODB_URI) {
+      console.error("MONGODB_URI environment variable is not set");
+      return NextResponse.json({ 
+        success: false, 
+        error: "MongoDB connection string not configured. Please set MONGODB_URI environment variable.",
+        posts: []
+      }, { status: 500 });
+    }
+    
+    let client;
+    try {
+      client = await clientPromise;
+      console.log("MongoDB client connected successfully");
+    } catch (connectionError) {
+      console.error("Failed to connect to MongoDB:", connectionError);
+      const connErrorMsg = connectionError instanceof Error ? connectionError.message : "Connection failed";
+      
+      // Check for specific SSL/TLS errors
+      if (connErrorMsg.includes("SSL") || connErrorMsg.includes("TLS") || connErrorMsg.includes("tlsv1")) {
+        return NextResponse.json({ 
+          success: false, 
+          error: "MongoDB SSL/TLS connection error. Please check your connection string and network settings.",
+          errorDetails: process.env.NODE_ENV === "development" ? connErrorMsg : undefined,
+          posts: []
+        }, { status: 500 });
+      }
+      
+      return NextResponse.json({ 
+        success: false, 
+        error: `Database connection failed: ${connErrorMsg}. Please check your MONGODB_URI.`,
+        errorDetails: process.env.NODE_ENV === "development" ? connErrorMsg : undefined,
+        posts: []
+      }, { status: 500 });
+    }
     
     const db = client.db("mydb");
     console.log("Database 'mydb' accessed");
