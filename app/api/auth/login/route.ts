@@ -15,7 +15,17 @@ export async function POST(request: Request) {
     }
 
     // Find user in MongoDB - only check users collection
-    const client = await clientPromise;
+    let client;
+    try {
+      client = await clientPromise;
+    } catch (dbError) {
+      console.error("MongoDB connection error:", dbError);
+      return NextResponse.json({ 
+        success: false, 
+        error: "Database connection failed. Please check your MongoDB connection string." 
+      }, { status: 500 });
+    }
+
     const db = client.db("mydb");
     const user = await db.collection("users").findOne({ email: email.toLowerCase() });
 

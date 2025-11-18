@@ -21,11 +21,22 @@ export async function GET() {
     const client = await clientPromise;
     const db = client.db("mydb");
     const posts = await db.collection("posts").find().sort({ createdAt: -1 }).toArray();
-    return NextResponse.json({ success: true, posts });
+    
+    // Convert ObjectId to string for JSON serialization
+    const serializedPosts = posts.map(post => ({
+      ...post,
+      _id: post._id.toString(),
+    }));
+    
+    return NextResponse.json({ success: true, posts: serializedPosts });
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching posts:", error);
     const errorMessage = error instanceof Error ? error.message : "Failed to fetch posts";
-    return NextResponse.json({ success: false, error: errorMessage });
+    return NextResponse.json({ 
+      success: false, 
+      error: errorMessage,
+      posts: [] // Return empty array on error
+    });
   }
 }
 

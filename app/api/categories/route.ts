@@ -19,11 +19,22 @@ export async function GET() {
     const client = await clientPromise;
     const db = client.db("mydb");
     const categories = await db.collection("categories").find().sort({ name: 1 }).toArray();
-    return NextResponse.json({ success: true, categories });
+    
+    // Convert ObjectId to string for JSON serialization
+    const serializedCategories = categories.map(cat => ({
+      ...cat,
+      _id: cat._id.toString(),
+    }));
+    
+    return NextResponse.json({ success: true, categories: serializedCategories });
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching categories:", error);
     const errorMessage = error instanceof Error ? error.message : "Failed to fetch categories";
-    return NextResponse.json({ success: false, error: errorMessage });
+    return NextResponse.json({ 
+      success: false, 
+      error: errorMessage,
+      categories: [] // Return empty array on error
+    });
   }
 }
 

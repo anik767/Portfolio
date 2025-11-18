@@ -25,20 +25,34 @@ export default function Home() {
     async function fetchData() {
       try {
         // Fetch posts
-        const postsRes = await fetch("/api/posts");
+        const postsRes = await fetch("/api/posts", {
+          cache: "no-store", // Ensure fresh data
+        });
         const postsData = await postsRes.json();
-        if (postsData.success) {
+        console.log("Posts data:", postsData); // Debug log
+        if (postsData.success && postsData.posts) {
           setPosts(postsData.posts);
+        } else {
+          console.error("Failed to load posts:", postsData.error);
+          setPosts([]);
         }
 
         // Fetch categories
-        const categoriesRes = await fetch("/api/categories");
+        const categoriesRes = await fetch("/api/categories", {
+          cache: "no-store", // Ensure fresh data
+        });
         const categoriesData = await categoriesRes.json();
-        if (categoriesData.success) {
+        console.log("Categories data:", categoriesData); // Debug log
+        if (categoriesData.success && categoriesData.categories) {
           setCategories(categoriesData.categories);
+        } else {
+          console.error("Failed to load categories:", categoriesData.error);
+          setCategories([]);
         }
       } catch (err) {
         console.error("Failed to load data:", err);
+        setPosts([]);
+        setCategories([]);
       } finally {
         setLoading(false);
       }
