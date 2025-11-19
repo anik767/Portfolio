@@ -24,13 +24,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   ];
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <aside className="fixed left-0 top-0 h-screen w-72 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white flex flex-col shadow-2xl z-10">
-        <div className="p-6 border-b border-white/20">
-          <h1 className="text-3xl font-extrabold mb-2 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+    <div className="min-h-screen flex bg-gray-50">
+      <aside className="fixed left-0 top-0 h-screen w-72 bg-gray-900 text-white flex flex-col shadow-2xl z-10">
+        <div className="p-6 border-b border-gray-700">
+          <h1 className="text-3xl font-extrabold mb-2 text-white">
             Dashboard
           </h1>
-          <p className="text-sm text-white/80">Content Management</p>
+          <p className="text-sm text-gray-400">Content Management</p>
         </div>
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           {navItems.map((item) => {
@@ -41,10 +41,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
                   active
-                    ? "bg-white/20 backdrop-blur-sm shadow-lg scale-105 font-semibold"
-                    : "bg-white/5 hover:bg-white/10 hover:scale-[1.02]"
+                    ? "bg-gray-800 shadow-md font-semibold text-white"
+                    : "bg-transparent hover:bg-gray-800/50 text-gray-300"
                 }`}
               >
                 <span className="text-xl">{item.icon}</span>
@@ -53,10 +53,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
-        <div className="p-4 border-t border-white/20">
+        <div className="p-4 border-t border-gray-700">
           <button
             onClick={handleLogout}
-            className="w-full px-4 py-3 bg-white/20 hover:bg-white/30 rounded-xl font-semibold transition-all duration-200 hover:scale-105 shadow-lg backdrop-blur-sm flex items-center justify-center gap-2"
+            className="w-full px-4 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-semibold transition-all duration-200 shadow-md flex items-center justify-center gap-2 text-white"
           >
             <span>🚪</span>
             <span>Logout</span>

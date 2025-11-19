@@ -267,7 +267,7 @@ const Table = <T extends Record<string, unknown> = Record<string, unknown>>({
                       ${column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : 'text-left'}
                     `}
                   >
-                    {column.render ? column.render(record[column.key], record) : record[column.key]}
+                    {column.render ? column.render(record[column.key], record) : String(record[column.key] ?? '')}
                   </td>
                 ))}
               </tr>

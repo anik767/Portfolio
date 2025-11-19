@@ -53,9 +53,9 @@ const Test = () => {
       key: 'status',
       title: 'Status',
       width: '200px',
-      render: (value: string) => (
-        <Badge variant={value === 'Active' ? 'elegant' : 'rose'} size="sm">
-          {value}
+      render: (value: unknown) => (
+        <Badge variant={typeof value === 'string' && value === 'Active' ? 'elegant' : 'rose'} size="sm">
+          {String(value)}
         </Badge>
       )
     }

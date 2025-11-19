@@ -102,12 +102,12 @@ export default function SkillsAdminPage() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl p-6 text-white shadow-2xl mb-6">
+      <div className="bg-gray-900 rounded-xl p-6 text-white shadow-lg mb-6">
         <h1 className="text-3xl font-extrabold mb-2 flex items-center gap-3">
           <span>🛠️</span>
           <span>Manage Technical Skills</span>
         </h1>
-        <p className="text-white/90">Add and manage your technical skills with proficiency levels</p>
+        <p className="text-gray-300">Add and manage your technical skills with proficiency levels</p>
       </div>
 
       <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
@@ -123,7 +123,7 @@ export default function SkillsAdminPage() {
             <button
               type="button"
               onClick={addSkill}
-              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+              className="px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2"
             >
               <span className="text-xl">➕</span>
               <span>Add Skill</span>
@@ -131,7 +131,7 @@ export default function SkillsAdminPage() {
           </div>
 
           {skills.length === 0 && (
-            <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl border-2 border-dashed border-gray-300">
+            <div className="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
               <div className="text-6xl mb-4">🛠️</div>
               <p className="text-gray-600 font-semibold text-lg mb-2">No skills added yet</p>
               <p className="text-gray-400">Click "Add Skill" to get started</p>
@@ -140,10 +140,10 @@ export default function SkillsAdminPage() {
 
           <div className="space-y-4">
             {skills.map((skill, index) => (
-              <div key={index} className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6 hover:shadow-lg transition-all duration-200">
+              <div key={index} className="bg-gray-50 border-2 border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all duration-200">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                    <span className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">
+                    <span className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center text-white font-bold">
                       {index + 1}
                     </span>
                     <span>Skill {index + 1}</span>
@@ -186,7 +186,7 @@ export default function SkillsAdminPage() {
                     />
                     <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
                       <div 
-                        className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all duration-300" 
+                        className="bg-gray-900 h-2 rounded-full transition-all duration-300" 
                         style={{ width: `${skill.level}%` }}
                       />
                     </div>
@@ -199,7 +199,7 @@ export default function SkillsAdminPage() {
           <button 
             type="submit" 
             disabled={loading || skills.length === 0} 
-            className="w-full py-4 px-6 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg"
+            className="w-full py-4 px-6 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg"
           >
             {loading ? (
               <>

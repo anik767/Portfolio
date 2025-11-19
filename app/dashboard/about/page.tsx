@@ -108,12 +108,12 @@ export default function AboutAdminPage() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl p-6 text-white shadow-2xl mb-6">
+      <div className="bg-gray-900 rounded-xl p-6 text-white shadow-lg mb-6">
         <h1 className="text-3xl font-extrabold mb-2 flex items-center gap-3">
           <span>👤</span>
           <span>Manage About Section</span>
         </h1>
-        <p className="text-white/90">Update your about section content and image</p>
+        <p className="text-gray-300">Update your about section content and image</p>
       </div>
 
       <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
@@ -130,7 +130,7 @@ export default function AboutAdminPage() {
           <ModernInput label="Heading" value={heading} onChange={e => setHeading(e.target.value)} required />
           <ModernInput label="Description (one paragraph per line)" type="textarea" value={description} onChange={e => setDescription(e.target.value)} required rows={6} />
 
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border-2 border-purple-100">
+          <div className="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
             <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
               <span>🖼️</span>
               <span>About Image</span>
@@ -146,12 +146,12 @@ export default function AboutAdminPage() {
                 type="file" 
                 accept="image/*" 
                 onChange={e => setImage(e.target.files?.[0] || null)} 
-                className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer" 
+                className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-200 file:text-gray-700 hover:file:bg-gray-300 cursor-pointer" 
               />
             </label>
           </div>
 
-          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-xl border-2 border-emerald-100">
+          <div className="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
             <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
               <span>🏷️</span>
               <span>Badges (comma separated)</span>
@@ -162,7 +162,7 @@ export default function AboutAdminPage() {
               onChange={e => setBadges(e.target.value)} 
               placeholder="2+ Years Experience:emerald, 20+ Projects:cyanblue, Remote Work:elegant"
             />
-            <p className="text-sm text-gray-600 mt-2 bg-white/50 p-3 rounded-lg border border-emerald-200">
+            <p className="text-sm text-gray-600 mt-2 bg-white p-3 rounded-lg border border-gray-200">
               <span className="font-semibold">Format:</span> "text:variant, text:variant" (e.g., "2+ Years Experience:emerald, 20+ Projects:cyanblue")
             </p>
           </div>
@@ -170,7 +170,7 @@ export default function AboutAdminPage() {
           <button 
             type="submit" 
             disabled={loading} 
-            className="w-full py-4 px-6 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg"
+            className="w-full py-4 px-6 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg"
           >
             {loading ? (
               <>
