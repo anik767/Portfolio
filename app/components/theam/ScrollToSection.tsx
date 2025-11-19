@@ -13,7 +13,6 @@ const ScrollToSection = ({ children, sectionId, className = '' }: ScrollToSectio
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({
-        behavior: 'smooth',
         block: 'start'
       });
     }

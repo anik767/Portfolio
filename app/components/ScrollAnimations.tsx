@@ -103,23 +103,7 @@ const ScrollAnimations = () => {
           );
         };
 
-        // Wait for ScrollSmoother to be ready FIRST (if available)
-        try {
-          const { ScrollSmoother } = await import('gsap/ScrollSmoother');
-          let smoother = ScrollSmoother.get();
-          let attempts = 0;
-          
-          while (!smoother && attempts < 30) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-            smoother = ScrollSmoother.get();
-            attempts++;
-          }
-          
-        } catch (error) {
-          // ScrollSmoother not available, using standard ScrollTrigger
-        }
-
-        // Additional delay to ensure everything is ready
+        // Small delay to ensure DOM is ready before applying animations
         await new Promise(resolve => setTimeout(resolve, 200));
 
         // HERO SECTION - Always animate on ALL devices (mobile, tablet, desktop)

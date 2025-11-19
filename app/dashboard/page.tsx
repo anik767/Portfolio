@@ -12,7 +12,6 @@ type Project = {
 
 export default function Dashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -47,22 +46,7 @@ export default function Dashboard() {
       }
     } catch (err) {
       console.error("Failed to load projects:", err);
-    } finally {
-      setLoading(false);
     }
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="inline-flex items-center gap-3 p-6 rounded-2xl bg-white shadow-xl border border-gray-200">
-          <div className="relative">
-            <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-          </div>
-          <span className="text-gray-700 font-medium">Loading dashboard…</span>
-        </div>
-      </div>
-    );
   }
 
   return (

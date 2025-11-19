@@ -24,8 +24,7 @@ const Footer = () => {
       const offsetPosition = elementPosition - 100;
       
       window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
+        top: offsetPosition
       });
     }
   };

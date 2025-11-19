@@ -24,7 +24,6 @@ type HeroData = {
 
 const Hero = () => {
   const [heroData, setHeroData] = useState<HeroData | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchHeroData() {
@@ -36,20 +35,10 @@ const Hero = () => {
         }
       } catch (err) {
         console.error("Failed to fetch hero data:", err);
-      } finally {
-        setLoading(false);
       }
     }
     fetchHeroData();
   }, []);
-
-  if (loading) {
-    return (
-      <section id="home" className="min-h-screen flex items-center justify-center bg-[#F4F1EA]">
-        <div className="text-center">Loading...</div>
-      </section>
-    );
-  }
 
   return (
     <section id="home" className="min-h-screen flex items-center relative overflow-hidden bg-[#F4F1EA]">
@@ -90,7 +79,7 @@ const Hero = () => {
                 I AM
               </Text>
               <Text id="hero-name" variant="h1" size="4xl" color="primary" fontFamily="rajdhani" className="md:text-5xl lg:text-6xl leading-[1.2] tracking-tight drop-shadow-2xl">
-                {heroData?.name || "Your Name"}
+                {heroData?.name }
               </Text>
               <Text
                 id="hero-title"
@@ -103,7 +92,7 @@ const Hero = () => {
                 strokeWidth=".8px"
                 strokeColor="gray"
               >
-                {heroData?.title || "Your Title"}
+                {heroData?.title}
               </Text>
             </div>
 

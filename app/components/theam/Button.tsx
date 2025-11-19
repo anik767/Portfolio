@@ -80,8 +80,7 @@ const Button = ({
         const offsetPosition = elementPosition + window.pageYOffset - 100; // 100px offset for fixed header
         
         window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
+          top: offsetPosition
         });
       }
     } else if (onClick) {

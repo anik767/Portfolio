@@ -13,7 +13,16 @@ type AdminUser = {
 type EditState = {
   email: string;
   password: string;
+  confirmPassword: string;
+  showPassword: boolean;
 };
+
+const createEditState = (email: string): EditState => ({
+  email,
+  password: "",
+  confirmPassword: "",
+  showPassword: false,
+});
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -39,10 +48,7 @@ export default function AdminUsersPage() {
       setUsers(data.users || []);
       const mapped: Record<string, EditState> = {};
       (data.users || []).forEach((user: AdminUser) => {
-        mapped[user._id] = {
-          email: user.email,
-          password: "",
-        };
+        mapped[user._id] = createEditState(user.email);
       });
       setEditStates(mapped);
     } catch (err) {
@@ -56,6 +62,13 @@ export default function AdminUsersPage() {
   async function handleUpdateUser(id: string) {
     const state = editStates[id];
     if (!state) return;
+
+    if (state.password || state.confirmPassword) {
+      if (state.password !== state.confirmPassword) {
+        setError("Passwords do not match. Please confirm the new password.");
+        return;
+      }
+    }
     setSaving(true);
     setError("");
     try {
@@ -66,7 +79,7 @@ export default function AdminUsersPage() {
         body: JSON.stringify({
           id,
           email: state.email,
-          password: state.password || undefined,
+          password: state.password ? state.password : undefined,
         }),
       });
       const data = await res.json();
@@ -74,6 +87,10 @@ export default function AdminUsersPage() {
         throw new Error(data.error || "Failed to update user");
       }
       await fetchUsers();
+      setEditStates((prev) => ({
+        ...prev,
+        [id]: createEditState(state.email),
+      }));
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : "Failed to update user");
@@ -128,7 +145,9 @@ export default function AdminUsersPage() {
         ) : (
           <div className="space-y-4">
             {users.map((user) => {
-              const state = editStates[user._id] || { email: user.email, password: "" };
+              const state =
+                editStates[user._id] ||
+                createEditState(user.email);
               const createdDate = user.createdAt
                 ? new Date(user.createdAt).toLocaleDateString()
                 : "Unknown";
@@ -153,19 +172,64 @@ export default function AdminUsersPage() {
                       required
                       type="email"
                     />
-                    <ModernInput
-                      label="New Password (optional)"
-                      value={state.password}
-                      onChange={(e) =>
-                        setEditStates((prev) => ({
-                          ...prev,
-                          [user._id]: { ...state, password: e.target.value },
-                        }))
-                      }
-                      type="text"
-                      placeholder="Leave blank to keep current password"
-                      className="sm:col-span-2"
-                    />
+                    <div className="sm:col-span-2 space-y-3">
+                      <label className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-xs sm:text-sm uppercase tracking-wide">
+                        New Password (optional)
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={state.showPassword ? "text" : "password"}
+                          value={state.password}
+                          onChange={(e) =>
+                            setEditStates((prev) => ({
+                              ...prev,
+                              [user._id]: { ...state, password: e.target.value },
+                            }))
+                          }
+                          className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-gray-800 bg-white"
+                          placeholder="Leave blank to keep current password"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setEditStates((prev) => ({
+                              ...prev,
+                              [user._id]: { ...state, showPassword: !state.showPassword },
+                            }))
+                          }
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                          aria-label={state.showPassword ? "Hide password" : "Show password"}
+                        >
+                          {state.showPassword ? (
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                            </svg>
+                          ) : (
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                      <div>
+                        <label className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-xs sm:text-sm uppercase tracking-wide">
+                          Confirm Password
+                        </label>
+                        <input
+                          type={state.showPassword ? "text" : "password"}
+                          value={state.confirmPassword}
+                          onChange={(e) =>
+                            setEditStates((prev) => ({
+                              ...prev,
+                              [user._id]: { ...state, confirmPassword: e.target.value },
+                            }))
+                          }
+                          className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-gray-800 bg-white"
+                          placeholder="Re-enter new password"
+                        />
+                      </div>
+                    </div>
                   </div>
                   <div className="mt-4 flex flex-col sm:flex-row gap-3">
                     <button
@@ -179,7 +243,7 @@ export default function AdminUsersPage() {
                       onClick={() =>
                         setEditStates((prev) => ({
                           ...prev,
-                          [user._id]: { email: user.email, password: "" },
+                          [user._id]: createEditState(user.email),
                         }))
                       }
                       className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-all duration-200"
