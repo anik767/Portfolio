@@ -100,9 +100,9 @@ const Hero = () => {
             {heroData?.description && heroData.description.length > 0 ? (
               <TypingAnimation
                 text={heroData.description}
-                speed={20}
-                backSpeed={10}
-                backDelay={1500}
+                speed={30}
+                backSpeed={20}
+                backDelay={2000}
                 loop={true}
                 textColor="secondary"
                 fontFamily="poppins"
