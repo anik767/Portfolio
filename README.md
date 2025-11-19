@@ -26,8 +26,8 @@ ADMIN_DEFAULT_PASSWORD=super-secret
 There are three ways to populate the `admin_users` collection:
 
 1. **Automatic seed (recommended)** – set the `ADMIN_DEFAULT_*` env vars before the first login. The `/api/auth/login` route will provision this account on the fly if the collection is empty.
-2. **Legacy migration** – visit **Dashboard ▸ Admin Users** and click **“Migrate Legacy Users”** to copy accounts from the old `users` collection (passwords are hashed during migration).
-3. **Manual create** – use the “Add New Admin” form on the same dashboard screen to add additional accounts. Passwords are hashed server-side via bcrypt.
+2. **Dashboard form** – use the “Add New Admin” form on **Dashboard ▸ Admin Users** to add accounts. Passwords are hashed server-side via bcrypt.
+3. **Command-line script** – run `node user.js --email=you@example.com --password=Pass123` to create or update an admin user directly in MongoDB. The script reads `MONGODB_URI` (and optionally `.env.local`) so you can seed remote environments without hitting the API.
 
 If you clone this project in a new environment, simply set the env vars and log in once; the table and credentials will be created for you.
 
