@@ -24,10 +24,10 @@ export const ModernInput = ({
   const inputId = `input-${label.toLowerCase().replace(/\s+/g, '-')}`;
   
   return (
-    <div className={`mb-6 ${className}`}>
+    <div className={`mb-4 sm:mb-6 ${className}`}>
       <label 
         htmlFor={inputId} 
-        className="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide"
+        className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-xs sm:text-sm uppercase tracking-wide"
       >
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
@@ -42,7 +42,7 @@ export const ModernInput = ({
           required={required}
           autoComplete="off"
           spellCheck={false}
-          className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-gray-800 bg-white transition-all duration-200 placeholder:text-gray-400"
+          className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-gray-800 bg-white transition-all duration-200 placeholder:text-gray-400"
         />
       ) : (
         <input
@@ -54,7 +54,7 @@ export const ModernInput = ({
           required={required}
           autoComplete="off"
           spellCheck={false}
-          className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-gray-800 bg-white transition-all duration-200 placeholder:text-gray-400"
+          className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-gray-800 bg-white transition-all duration-200 placeholder:text-gray-400"
         />
       )}
     </div>

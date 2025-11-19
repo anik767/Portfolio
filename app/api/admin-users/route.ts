@@ -6,21 +6,45 @@ import bcrypt from "bcryptjs";
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+async function ensureAuthenticated() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("admin_token")?.value;
+  const adminToken = process.env.ADMIN_TOKEN || "admin-secret-token";
+
+  if (!token || token !== adminToken) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
+
+  return null;
+}
+
+function normalizeStatus(status: unknown) {
+  if (typeof status === "number") return status;
+  if (typeof status === "string") {
+    const parsed = parseInt(status, 10);
+    if (!Number.isNaN(parsed)) {
+      return parsed === 0 ? 0 : 1;
+    }
+  }
+  if (typeof status === "boolean") {
+    return status ? 1 : 0;
+  }
+  return 1;
+}
+
 // GET → fetch all admin users (requires authentication)
 export async function GET() {
   try {
-    // Check authentication
-    const cookieStore = await cookies();
-    const token = cookieStore.get("admin_token")?.value;
-    const adminToken = process.env.ADMIN_TOKEN || "admin-secret-token";
-    
-    if (!token || token !== adminToken) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-    }
+    const authError = await ensureAuthenticated();
+    if (authError) return authError;
 
     const client = await clientPromise;
     const db = client.db("mydb");
-    const users = await db.collection("admin_users").find({}, { projection: { password: 0 } }).toArray();
+    const users = await db
+      .collection("admin_users")
+      .find({}, { projection: { password: 0 } })
+      .sort({ createdAt: -1 })
+      .toArray();
     
     return NextResponse.json({ success: true, users });
   } catch (error) {
@@ -33,14 +57,8 @@ export async function GET() {
 // POST → create a new admin user (requires authentication)
 export async function POST(request: Request) {
   try {
-    // Check authentication
-    const cookieStore = await cookies();
-    const token = cookieStore.get("admin_token")?.value;
-    const adminToken = process.env.ADMIN_TOKEN || "admin-secret-token";
-    
-    if (!token || token !== adminToken) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-    }
+    const authError = await ensureAuthenticated();
+    if (authError) return authError;
 
     const { email, password, status } = await request.json();
 
@@ -64,8 +82,9 @@ export async function POST(request: Request) {
     const result = await db.collection("admin_users").insertOne({
       email: email.toLowerCase(),
       password: hashedPassword,
-      status: status !== undefined ? status : 1, // Default to active
+      status: normalizeStatus(status),
       createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     return NextResponse.json({ success: true, insertedId: result.insertedId });
@@ -79,14 +98,8 @@ export async function POST(request: Request) {
 // PUT → update admin user (requires authentication)
 export async function PUT(request: Request) {
   try {
-    // Check authentication
-    const cookieStore = await cookies();
-    const token = cookieStore.get("admin_token")?.value;
-    const adminToken = process.env.ADMIN_TOKEN || "admin-secret-token";
-    
-    if (!token || token !== adminToken) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-    }
+    const authError = await ensureAuthenticated();
+    if (authError) return authError;
 
     const { id, email, password, status } = await request.json();
 
@@ -100,7 +113,7 @@ export async function PUT(request: Request) {
 
     type AdminUserUpdateData = {
       email?: string;
-      status?: string;
+      status?: number;
       password?: string;
       updatedAt: Date;
     };
@@ -108,7 +121,7 @@ export async function PUT(request: Request) {
       updatedAt: new Date()
     };
     if (email) updateData.email = email.toLowerCase();
-    if (status !== undefined) updateData.status = status;
+    if (status !== undefined) updateData.status = normalizeStatus(status);
     if (password) {
       updateData.password = await bcrypt.hash(password, 10);
     }
@@ -133,14 +146,8 @@ export async function PUT(request: Request) {
 // DELETE → delete admin user (requires authentication)
 export async function DELETE(request: Request) {
   try {
-    // Check authentication
-    const cookieStore = await cookies();
-    const token = cookieStore.get("admin_token")?.value;
-    const adminToken = process.env.ADMIN_TOKEN || "admin-secret-token";
-    
-    if (!token || token !== adminToken) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-    }
+    const authError = await ensureAuthenticated();
+    if (authError) return authError;
 
     const { id } = await request.json();
     if (!id) {

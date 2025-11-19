@@ -27,7 +27,32 @@ export async function POST(request: Request) {
     }
 
     const db = client.db("mydb");
-    const user = await db.collection("users").findOne({ email: email.toLowerCase() });
+    const normalizedEmail = email.toLowerCase();
+    const adminCollection = db.collection("admin_users");
+
+    // Prefer admin_users collection
+    let user = await adminCollection.findOne({ email: normalizedEmail });
+
+    // Legacy fallback: migrate user from old users collection automatically
+    if (!user) {
+      const legacyUser = await db.collection("users").findOne({ email: normalizedEmail });
+      if (legacyUser && legacyUser.password) {
+        const hashedPassword = legacyUser.password.startsWith("$2")
+          ? legacyUser.password
+          : await bcrypt.hash(legacyUser.password, 10);
+
+        const migrationResult = await adminCollection.insertOne({
+          email: normalizedEmail,
+          password: hashedPassword,
+          status: typeof legacyUser.status === "number" ? legacyUser.status : 1,
+          createdAt: legacyUser.createdAt || new Date(),
+          updatedAt: new Date(),
+          migratedFromUsers: true,
+        });
+
+        user = await adminCollection.findOne({ _id: migrationResult.insertedId });
+      }
+    }
 
     if (!user) {
       return NextResponse.json({ success: false, error: "Invalid credentials" }, { status: 401 });
