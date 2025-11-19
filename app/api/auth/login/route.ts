@@ -2,9 +2,38 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import clientPromise from "@/lib/mongodb";
 import bcrypt from "bcryptjs";
+import type { Db } from "mongodb";
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+async function ensureSeedAdmin(db: Db) {
+  const totalAdmins = await db.collection("admin_users").countDocuments();
+  if (totalAdmins > 0) return;
+
+  const defaultEmail = process.env.ADMIN_DEFAULT_EMAIL;
+  const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD;
+
+  if (!defaultEmail || !defaultPassword) {
+    console.warn(
+      "[admin seed] admin_users collection empty but ADMIN_DEFAULT_EMAIL/ADMIN_DEFAULT_PASSWORD not set."
+    );
+    return;
+  }
+
+  const hashed = await bcrypt.hash(defaultPassword, 10);
+
+  await db.collection("admin_users").insertOne({
+    email: defaultEmail.toLowerCase(),
+    password: hashed,
+    status: 1,
+    seededFromEnv: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  console.info("[admin seed] default admin user provisioned from environment variables.");
+}
 
 export async function POST(request: Request) {
   try {
@@ -27,8 +56,11 @@ export async function POST(request: Request) {
     }
 
     const db = client.db("mydb");
-    const normalizedEmail = email.toLowerCase();
     const adminCollection = db.collection("admin_users");
+
+    await ensureSeedAdmin(db);
+
+    const normalizedEmail = email.toLowerCase();
 
     // Prefer admin_users collection
     let user = await adminCollection.findOne({ email: normalizedEmail });
