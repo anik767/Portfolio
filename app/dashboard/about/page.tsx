@@ -163,7 +163,7 @@ export default function AboutAdminPage() {
               placeholder="2+ Years Experience:emerald, 20+ Projects:cyanblue, Remote Work:elegant"
             />
             <p className="text-xs sm:text-sm text-gray-600 mt-2 bg-white p-2 sm:p-3 rounded-lg border border-gray-200">
-              <span className="font-semibold">Format:</span> "text:variant, text:variant" (e.g., "2+ Years Experience:emerald, 20+ Projects:cyanblue")
+              <span className="font-semibold">Format:</span> &quot;text:variant, text:variant&quot; (e.g., &quot;2+ Years Experience:emerald, 20+ Projects:cyanblue&quot;)
             </p>
           </div>
 

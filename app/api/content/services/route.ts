@@ -19,6 +19,7 @@ export async function GET() {
     const db = client.db("mydb");
     
     const services = await db.collection("services").find().sort({ order: 1 }).toArray();
+    const metaDoc = await db.collection("content").findOne({ type: "services" });
     
     const serialized = services.map((s) => ({
       ...s,
@@ -27,7 +28,18 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      services: serialized
+      services: serialized,
+      meta: {
+        heading: metaDoc?.heading ?? "My Services",
+        subheading:
+          metaDoc?.subheading ??
+          "I offer a comprehensive range of development and design services to help bring your ideas to life and grow your business.",
+        ctaHeading: metaDoc?.ctaHeading ?? "Ready to Start Your Project?",
+        ctaDescription:
+          metaDoc?.ctaDescription ??
+          "Let's discuss your requirements and create something amazing together. I'm here to help you achieve your goals.",
+        ctaButtonLabel: metaDoc?.ctaButtonLabel ?? "Get Started Today",
+      },
     });
   } catch (err) {
     console.error(err);
@@ -41,7 +53,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
-    const { services } = await request.json();
+    const { services, meta } = await request.json();
 
     if (!Array.isArray(services)) {
       return NextResponse.json({ success: false, error: "Services must be an array" }, { status: 400 });
@@ -68,6 +80,27 @@ export async function POST(request: Request) {
     if (servicesToInsert.length > 0) {
       await db.collection("services").insertMany(servicesToInsert);
     }
+
+    const sanitizedMeta = {
+      heading: typeof meta?.heading === "string" ? meta.heading.trim() : "My Services",
+      subheading: typeof meta?.subheading === "string" ? meta.subheading.trim() : "",
+      ctaHeading: typeof meta?.ctaHeading === "string" ? meta.ctaHeading.trim() : "",
+      ctaDescription: typeof meta?.ctaDescription === "string" ? meta.ctaDescription.trim() : "",
+      ctaButtonLabel:
+        typeof meta?.ctaButtonLabel === "string" ? meta.ctaButtonLabel.trim() : "Get Started Today",
+    };
+
+    await db.collection("content").updateOne(
+      { type: "services" },
+      {
+        $set: {
+          type: "services",
+          ...sanitizedMeta,
+          updatedAt: new Date(),
+        },
+      },
+      { upsert: true }
+    );
 
     return NextResponse.json({ success: true });
   } catch (err) {

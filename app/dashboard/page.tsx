@@ -14,6 +14,20 @@ export default function Dashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const router = useRouter();
 
+  async function loadProjects() {
+    try {
+      const res = await fetch("/api/project", {
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.project)) {
+        setProjects(data.project);
+      }
+    } catch (err) {
+      console.error("Failed to load projects:", err);
+    }
+  }
+
   useEffect(() => {
     async function checkAuthAndLoadData() {
       try {
@@ -33,21 +47,6 @@ export default function Dashboard() {
     }
     checkAuthAndLoadData();
   }, [router]);
-
-  async function loadProjects() {
-    try {
-      const res = await fetch("/api/project", {
-        credentials: "include",
-      });
-      const data = await res.json();
-      // Ensure API returns { success: true, project: Project[] }
-      if (data.success && Array.isArray(data.project)) {
-        setProjects(data.project);
-      }
-    } catch (err) {
-      console.error("Failed to load projects:", err);
-    }
-  }
 
   return (
     <div className="space-y-4 sm:space-y-6 lg:space-y-8 pt-12 lg:pt-0">

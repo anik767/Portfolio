@@ -11,8 +11,17 @@ type Service = {
   icon: string;
 };
 
+type ServicesMeta = {
+  heading: string;
+  subheading: string;
+  ctaHeading: string;
+  ctaDescription: string;
+  ctaButtonLabel: string;
+};
+
 const Services = () => {
   const [services, setServices] = useState<Service[]>([]);
+  const [meta, setMeta] = useState<ServicesMeta | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,8 +29,19 @@ const Services = () => {
       try {
         const res = await fetch("/api/content/services", { cache: "no-store" });
         const data = await res.json();
-        if (data.success && data.services) {
-          setServices(data.services);
+        if (data.success) {
+          if (Array.isArray(data.services)) {
+            setServices(data.services);
+          }
+          if (data.meta) {
+            setMeta({
+              heading: data.meta.heading ?? "My Services",
+              subheading: data.meta.subheading ?? "",
+              ctaHeading: data.meta.ctaHeading ?? "Ready to Start Your Project?",
+              ctaDescription: data.meta.ctaDescription ?? "",
+              ctaButtonLabel: data.meta.ctaButtonLabel ?? "Get Started Today",
+            });
+          }
         }
       } catch (err) {
         console.error("Failed to fetch services:", err);
@@ -63,43 +83,69 @@ const Services = () => {
     return icons[iconName] || icons.code;
   };
 
-  if (loading) {
-    return (
-      <section id="services" className="py-24 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          Loading...
+  const renderSkeleton = () => (
+    <section id="services" className="py-24 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-20">
+          <div className="h-6 w-40 mx-auto mb-4 bg-gray-200 rounded-full animate-pulse" />
+          <div className="h-4 w-64 mx-auto bg-gray-200 rounded-full animate-pulse" />
         </div>
-      </section>
-    );
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[0, 1, 2].map((key) => (
+            <div key={key} className="p-6 rounded-2xl border border-gray-100 bg-white/70 animate-pulse space-y-4">
+              <div className="w-16 h-16 rounded-2xl bg-gray-200" />
+              <div className="h-5 w-40 bg-gray-200 rounded-full" />
+              <div className="h-4 w-full bg-gray-100 rounded-full" />
+              <div className="h-4 w-3/4 bg-gray-100 rounded-full" />
+              <div className="space-y-2">
+                <div className="h-3 w-2/3 bg-gray-100 rounded-full" />
+                <div className="h-3 w-1/2 bg-gray-100 rounded-full" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+
+  if (loading) {
+    return renderSkeleton();
+  }
+
+  if (!services || services.length === 0) {
+    return null;
   }
 
   return (
     <section id="services" className="py-24 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div id="services-header" className="text-center mb-20">
-          <Text 
-            variant="h2" 
-            size="3xl" 
-            fontFamily="rajdhani" 
-            color="black" 
-            weight="extrabold"
-            align="center"
-            className="md:text-4xl mb-4"
-          >
-            My Services
-          </Text>
+          {meta?.heading && (
+            <Text 
+              variant="h2" 
+              size="3xl" 
+              fontFamily="rajdhani" 
+              color="black" 
+              weight="extrabold"
+              align="center"
+              className="md:text-4xl mb-4"
+            >
+              {meta.heading}
+            </Text>
+          )}
           <div className="w-24 h-1.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 mx-auto mb-6 rounded-full"></div>
-          <Text 
-            variant="body" 
-            size="lg" 
-            fontFamily="poppins" 
-            color="gray" 
-            align="center"
-            className="max-w-3xl mx-auto"
-          >
-            I offer a comprehensive range of development and design services to help 
-            bring your ideas to life and grow your business.
-          </Text>
+          {meta?.subheading && (
+            <Text 
+              variant="body" 
+              size="lg" 
+              fontFamily="poppins" 
+              color="gray" 
+              align="center"
+              className="max-w-3xl mx-auto"
+            >
+              {meta.subheading}
+            </Text>
+          )}
         </div>
 
         {services && services.length > 0 ? (
@@ -149,16 +195,10 @@ const Services = () => {
             </Card>
             ))}
           </div>
-        ) : (
-          <div className="text-center py-16 border-2 border-dashed border-gray-300 rounded-2xl">
-            <svg className="w-24 h-24 mx-auto mb-4 text-gray-400 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
-            
-          </div>
-        )}
+        ) : null}
 
         {/* Modern CTA Section */}
+        {meta && (
         <div className="mt-20 text-center">
           <Card 
             variant="filled" 
@@ -169,28 +209,31 @@ const Services = () => {
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/50 via-pink-500/50 to-blue-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-800"></div>
             
             <div className="relative z-10">
-              <Text 
-                variant="h3" 
-                size="2xl" 
-                fontFamily="rajdhani" 
-                color="white" 
-                weight="bold"
-                align="center"
-                className="mb-4"
-              >
-                Ready to Start Your Project?
-              </Text>
-              <Text 
-                variant="body" 
-                size="lg" 
-                fontFamily="poppins" 
-                color="white" 
-                align="center"
-                className="mb-8 max-w-2xl mx-auto opacity-90"
-              >
-                Let&apos;s discuss your requirements and create something amazing together. 
-                I&apos;m here to help you achieve your goals.
-              </Text>
+              {meta.ctaHeading && (
+                <Text 
+                  variant="h3" 
+                  size="2xl" 
+                  fontFamily="rajdhani" 
+                  color="white" 
+                  weight="bold"
+                  align="center"
+                  className="mb-4"
+                >
+                  {meta.ctaHeading}
+                </Text>
+              )}
+              {meta.ctaDescription && (
+                <Text 
+                  variant="body" 
+                  size="lg" 
+                  fontFamily="poppins" 
+                  color="white" 
+                  align="center"
+                  className="mb-8 max-w-2xl mx-auto opacity-90"
+                >
+                  {meta.ctaDescription}
+                </Text>
+              )}
               <div className="flex justify-center">
                 <Button
                   scrollTo="contact"
@@ -198,7 +241,7 @@ const Services = () => {
                   size="lg"
                   color="gray"
                 >
-                  Get Started Today
+                  {meta.ctaButtonLabel || "Get Started Today"}
                   <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
@@ -207,6 +250,7 @@ const Services = () => {
             </div>
           </Card>
         </div>
+        )}
       </div>
     </section>
   );

@@ -1,137 +1,152 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Text, Card, Badge } from './theam';
 
-const Education = () => {
-  const education = [
-    {
-      institution: 'Daffodil International University',
-      degree: 'Bachelor of Science in Computer Science and Engineering',
-      duration: '2019 - 2023',
-      location: 'Dhaka, Bangladesh',
-      logo: '/images/EducationLogo/DaffodilsLogo.jpg',
-      gpa: '3.8/4.0',
-      description: 'Focused on software engineering, algorithms, and data structures. Completed capstone project on web application development.',
-      courses: ['Data Structures', 'Algorithms', 'Database Systems', 'Software Engineering', 'Web Development', 'Machine Learning'],
-      achievements: [
-        'Dean\'s List for 6 consecutive semesters',
-        'President of Computer Science Club',
-        'Won 1st place in University Hackathon 2018'
-      ]
-    },
-    {
-      institution: 'SOS Hermann Gmeiner College',
-      degree: 'Higher Secondary Certificate (HSC)',
-      duration: '2017 - 2019',
-      location: 'Dhaka, Bangladesh',
-      logo: '/images/EducationLogo/Sos.jpg',
-      gpa: '5.0/5.0',
-      description: 'Completed Higher Secondary Certificate with focus on Science group, building strong foundation in Mathematics, Physics, Chemistry, and Computer Science.',
-      courses: ['Physics', 'Chemistry', 'Mathematics', 'Biology', 'English', 'ICT'],
-      achievements: [
-        'Achieved GPA 5.0 in HSC examination',
-        'Science group topper',
-        'Active member of Science Club'
-      ]
-    },
-    {
-      institution: 'Bogura YMCA Public School & College',
-      degree: 'Secondary School Certificate (SSC)',
-      duration: '2015 - 2017',
-      location: 'Dhaka, Bangladesh',
-      logo: '/images/EducationLogo/BYMCA.png',
-      gpa: '5.0/5.0',
-      description: 'Completed Secondary School Certificate with excellent academic performance and strong foundation in core subjects.',
-      courses: ['Mathematics', 'Science', 'English', 'Bangla', 'Social Science', 'Religion'],
-      achievements: [
-        'Achieved GPA 5.0 in SSC examination',
-        'Class representative',
-        'Participated in inter-school competitions'
-      ]
-    }
-  ];
+type EducationItem = {
+  institution: string;
+  degree: string;
+  duration: string;
+  location: string;
+  logo: string;
+  gpa?: string;
+  description: string;
+  courses: string[];
+  achievements: string[];
+};
 
-  const certifications = [
-    {
-      name: 'AWS Certified Solutions Architect',
-      issuer: 'Amazon Web Services',
-      date: '2023',
-      credentialId: 'AWS-SAA-123456',
-      logo: null,
-      description: 'Validates expertise in designing distributed systems on AWS platform.',
-      skills: ['Cloud Architecture', 'AWS Services', 'Security', 'Scalability']
-    },
-    {
-      name: 'Google Cloud Professional Developer',
-      issuer: 'Google Cloud',
-      date: '2022',
-      credentialId: 'GCP-PD-789012',
-      logo: null,
-      description: 'Demonstrates ability to build and deploy applications on Google Cloud Platform.',
-      skills: ['GCP Services', 'Kubernetes', 'Docker', 'CI/CD']
-    },
-    {
-      name: 'Certified Kubernetes Administrator (CKA)',
-      issuer: 'Cloud Native Computing Foundation',
-      date: '2022',
-      credentialId: 'CKA-345678',
-      logo: null,
-      description: 'Validates skills in Kubernetes cluster administration and troubleshooting.',
-      skills: ['Kubernetes', 'Container Orchestration', 'Cluster Management', 'Troubleshooting']
-    },
-    {
-      name: 'Microsoft Azure Fundamentals',
-      issuer: 'Microsoft',
-      date: '2021',
-      credentialId: 'AZ-900-901234',
-      logo: null,
-      description: 'Foundational knowledge of cloud concepts and Azure services.',
-      skills: ['Azure Services', 'Cloud Concepts', 'Security', 'Compliance']
+type CertificationItem = {
+  name: string;
+  issuer: string;
+  date: string;
+  credentialId: string;
+  logo: string;
+  description: string;
+  skills: string[];
+};
+
+type EducationData = {
+  heading: string;
+  subheading: string;
+  educationHeading: string;
+  certificationsHeading: string;
+  education: EducationItem[];
+  certifications: CertificationItem[];
+};
+
+const Education = () => {
+  const [data, setData] = useState<EducationData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchEducation() {
+      try {
+        const res = await fetch('/api/content/education', { cache: 'no-store' });
+        const json = await res.json();
+        if (json.success) {
+          setData({
+            heading: json.heading ?? 'Education & Certifications',
+            subheading:
+              json.subheading ??
+              'My educational background and professional certifications that validate my expertise.',
+            educationHeading: json.educationHeading ?? 'Education',
+            certificationsHeading: json.certificationsHeading ?? 'Professional Certifications',
+            education: Array.isArray(json.education) ? json.education : [],
+            certifications: Array.isArray(json.certifications) ? json.certifications : [],
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch education data:', error);
+      } finally {
+        setLoading(false);
+      }
     }
-  ];
+    fetchEducation();
+  }, []);
+
+  const renderSkeleton = () => (
+    <section id="education" className="py-24 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-20">
+          <div className="h-6 w-52 mx-auto mb-4 bg-gray-200 rounded-full animate-pulse" />
+          <div className="h-4 w-64 mx-auto bg-gray-200 rounded-full animate-pulse" />
+        </div>
+        <div className="space-y-6">
+          {[0, 1].map((key) => (
+            <div key={key} className="p-6 rounded-2xl border border-gray-100 bg-white/70 animate-pulse space-y-4">
+              <div className="h-5 w-48 bg-gray-200 rounded-full" />
+              <div className="h-4 w-full bg-gray-100 rounded-full" />
+              <div className="h-4 w-3/4 bg-gray-100 rounded-full" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+
+  if (loading) {
+    return renderSkeleton();
+  }
+
+  if (
+    !data ||
+    ((!data.education || data.education.length === 0) &&
+      (!data.certifications || data.certifications.length === 0))
+  ) {
+    return null;
+  }
+
+  const education = data.education ?? [];
+  const certifications = data.certifications ?? [];
 
   return (
     <section id="education" className="py-24 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div id="education-header" className="text-center mb-20">
-          <Text 
-            variant="h2" 
-            size="3xl" 
-            fontFamily="rajdhani" 
-            color="black" 
-            weight="extrabold"
-            align="center"
-            className="md:text-4xl mb-4"
-          >
-            Education & Certifications
-          </Text>
-          <div className="w-24 h-1.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 mx-auto mb-6 rounded-full"></div>
-          <Text 
-            variant="body" 
-            size="lg" 
-            fontFamily="poppins" 
-            color="gray" 
-            align="center"
-            className="max-w-3xl mx-auto"
-          >
-            My educational background and professional certifications that validate my expertise.
-          </Text>
-        </div>
-
-        {/* Education Section */}
-        <div id="education-content" className="mb-20">
-          <div className="text-center mb-12">
+          {data.heading && (
             <Text 
-              variant="h3" 
-              size="2xl" 
+              variant="h2" 
+              size="3xl" 
               fontFamily="rajdhani" 
               color="black" 
-              weight="bold"
+              weight="extrabold"
               align="center"
-              className="mb-4"
+              className="md:text-4xl mb-4"
             >
-              Education
+              {data.heading}
             </Text>
+          )}
+          <div className="w-24 h-1.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 mx-auto mb-6 rounded-full"></div>
+          {data.subheading && (
+            <Text 
+              variant="body" 
+              size="lg" 
+              fontFamily="poppins" 
+              color="gray" 
+              align="center"
+              className="max-w-3xl mx-auto"
+            >
+              {data.subheading}
+            </Text>
+          )}
+        </div>
+
+        {education.length > 0 && (
+        <div id="education-content" className="mb-20">
+          <div className="text-center mb-12">
+            {data.educationHeading && (
+              <Text 
+                variant="h3" 
+                size="2xl" 
+                fontFamily="rajdhani" 
+                color="black" 
+                weight="bold"
+                align="center"
+                className="mb-4"
+              >
+                {data.educationHeading}
+              </Text>
+            )}
             <div className="w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full"></div>
           </div>
           <div className="space-y-8">
@@ -193,12 +208,16 @@ const Education = () => {
                     </div>
                     
                     <div className="flex flex-wrap gap-2">
-                      <Badge variant="emerald" size="md" className="hover:scale-105 transition-transform">
-                        {edu.duration}
-                      </Badge>
-                      <Badge variant="elegant" size="md" className="hover:scale-105 transition-transform">
-                        GPA: {edu.gpa}
-                      </Badge>
+                      {edu.duration && (
+                        <Badge variant="emerald" size="md" className="hover:scale-105 transition-transform">
+                          {edu.duration}
+                        </Badge>
+                      )}
+                      {edu.gpa && (
+                        <Badge variant="elegant" size="md" className="hover:scale-105 transition-transform">
+                          GPA: {edu.gpa}
+                        </Badge>
+                      )}
                     </div>
                   </div>
 
@@ -225,70 +244,77 @@ const Education = () => {
                     </Text>
 
                     {/* Courses */}
-                    <div className="mb-4">
-                      <Text 
-                        variant="small" 
-                        fontFamily="poppins" 
-                        color="black" 
-                        weight="semibold"
-                        className="mb-2"
-                      >
-                        Key Courses:
-                      </Text>
-                      <div className="flex flex-wrap gap-2">
-                        {edu.courses.map((course, courseIndex) => (
-                          <Badge key={courseIndex} variant="elegant" size="sm" className="hover:scale-105 transition-transform cursor-pointer">
-                            {course}
-                          </Badge>
-                        ))}
+                    {edu.courses && edu.courses.length > 0 && (
+                      <div className="mb-4">
+                        <Text 
+                          variant="small" 
+                          fontFamily="poppins" 
+                          color="black" 
+                          weight="semibold"
+                          className="mb-2"
+                        >
+                          Key Courses:
+                        </Text>
+                        <div className="flex flex-wrap gap-2">
+                          {edu.courses.map((course, courseIndex) => (
+                            <Badge key={courseIndex} variant="elegant" size="sm" className="hover:scale-105 transition-transform cursor-pointer">
+                              {course}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Achievements */}
-                    <div>
-                      <Text 
-                        variant="small" 
-                        fontFamily="poppins" 
-                        color="black" 
-                        weight="semibold"
-                        className="mb-2"
-                      >
-                        Achievements:
-                      </Text>
-                      <ul className="space-y-1">
-                        {edu.achievements.map((achievement, achIndex) => (
-                          <li key={achIndex} className="flex items-start">
-                            <svg className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                            <Text variant="small" fontFamily="poppins" color="gray">
-                              {achievement}
-                            </Text>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    {edu.achievements && edu.achievements.length > 0 && (
+                      <div>
+                        <Text 
+                          variant="small" 
+                          fontFamily="poppins" 
+                          color="black" 
+                          weight="semibold"
+                          className="mb-2"
+                        >
+                          Achievements:
+                        </Text>
+                        <ul className="space-y-1">
+                          {edu.achievements.map((achievement, achIndex) => (
+                            <li key={achIndex} className="flex items-start">
+                              <svg className="w-4 h-4 text-green-500 mr-2 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                              <Text variant="small" fontFamily="poppins" color="gray">
+                                {achievement}
+                              </Text>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 </div>
               </Card>
             ))}
           </div>
         </div>
+        )}
 
-        {/* Certifications Section */}
+        {certifications.length > 0 && (
         <div>
           <div className="text-center mb-12">
-            <Text 
-              variant="h3" 
-              size="2xl" 
-              fontFamily="rajdhani" 
-              color="black" 
-              weight="bold"
-              align="center"
-              className="mb-4"
-            >
-              Professional Certifications
-            </Text>
+            {data.certificationsHeading && (
+              <Text 
+                variant="h3" 
+                size="2xl" 
+                fontFamily="rajdhani" 
+                color="black" 
+                weight="bold"
+                align="center"
+                className="mb-4"
+              >
+                {data.certificationsHeading}
+              </Text>
+            )}
             <div className="w-20 h-1 bg-gradient-to-r from-green-500 to-blue-500 mx-auto rounded-full"></div>
           </div>
           <div id="certifications-content" className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -325,67 +351,80 @@ const Education = () => {
                     </div>
                   )}
                   <div className="flex-1">
-                    <Text 
-                      variant="h4" 
-                      size="lg" 
-                      fontFamily="rajdhani" 
-                      color="black" 
-                      weight="bold"
-                      className="mb-1"
-                    >
-                      {cert.name}
-                    </Text>
-                    <Text 
-                      variant="body" 
-                      fontFamily="poppins" 
-                      color="gray" 
-                      size="sm"
-                      className="mb-2"
-                    >
-                      {cert.issuer}
-                    </Text>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant="elegant" size="sm" className="hover:scale-105 transition-transform">
-                        {cert.date}
-                      </Badge>
-                      <Text variant="small" fontFamily="poppins" color="gray" className="truncate">
-                        ID: {cert.credentialId}
+                    {cert.name && (
+                      <Text 
+                        variant="h4" 
+                        size="lg" 
+                        fontFamily="rajdhani" 
+                        color="black" 
+                        weight="bold"
+                        className="mb-1"
+                      >
+                        {cert.name}
                       </Text>
+                    )}
+                    {cert.issuer && (
+                      <Text 
+                        variant="body" 
+                        fontFamily="poppins" 
+                        color="gray" 
+                        size="sm"
+                        className="mb-2"
+                      >
+                        {cert.issuer}
+                      </Text>
+                    )}
+                    <div className="flex items-center space-x-2">
+                      {cert.date && (
+                        <Badge variant="elegant" size="sm" className="hover:scale-105 transition-transform">
+                          {cert.date}
+                        </Badge>
+                      )}
+                      {cert.credentialId && (
+                        <Text variant="small" fontFamily="poppins" color="gray" className="truncate">
+                          ID: {cert.credentialId}
+                        </Text>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                <Text 
-                  variant="body" 
-                  fontFamily="poppins" 
-                  color="gray" 
-                  className="mb-4 leading-relaxed"
-                >
-                  {cert.description}
-                </Text>
-
-                <div>
+                {cert.description && (
                   <Text 
-                    variant="small" 
+                    variant="body" 
                     fontFamily="poppins" 
-                    color="black" 
-                    weight="semibold"
-                    className="mb-2"
+                    color="gray" 
+                    className="mb-4 leading-relaxed"
                   >
-                    Skills Validated:
+                    {cert.description}
                   </Text>
-                  <div className="flex flex-wrap gap-2">
-                    {cert.skills.map((skill, skillIndex) => (
-                      <Badge key={skillIndex} variant="emerald" size="sm" className="hover:scale-105 transition-transform cursor-pointer">
-                        {skill}
-                      </Badge>
-                    ))}
+                )}
+
+                {cert.skills && cert.skills.length > 0 && (
+                  <div>
+                    <Text 
+                      variant="small" 
+                      fontFamily="poppins" 
+                      color="black" 
+                      weight="semibold"
+                      className="mb-2"
+                    >
+                      Skills Validated:
+                    </Text>
+                    <div className="flex flex-wrap gap-2">
+                      {cert.skills.map((skill, skillIndex) => (
+                        <Badge key={skillIndex} variant="emerald" size="sm" className="hover:scale-105 transition-transform cursor-pointer">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </Card>
             ))}
           </div>
         </div>
+        )}
       </div>
     </section>
   );

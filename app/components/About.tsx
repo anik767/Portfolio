@@ -51,11 +51,26 @@ const About = () => {
   if (loading) {
     return (
       <section id="about" className="py-24 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          Loading...
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 w-48 bg-gray-200 rounded-full mx-auto" />
+            <div className="h-4 w-64 bg-gray-200 rounded-full mx-auto" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
+              <div className="h-[500px] bg-gray-100 rounded-2xl" />
+              <div className="space-y-4">
+                <div className="h-6 bg-gray-100 rounded-full w-3/4" />
+                <div className="h-4 bg-gray-100 rounded-full w-full" />
+                <div className="h-4 bg-gray-100 rounded-full w-5/6" />
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     );
+  }
+
+  if (!aboutData && skills.length === 0) {
+    return null;
   }
 
   return (
@@ -89,19 +104,19 @@ const About = () => {
         </div>
 
         {/* Image and Content Side by Side */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-24">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-16 items-center mb-24">
           {/* Left Column - Image */}
           <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+            <div className="absolute  rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
             <div className="relative">
               {aboutData?.image ? (
                 <img 
-                  className="w-full h-[500px] object-contain object-center rounded-2xl shadow-2xl bg-gradient-to-br from-gray-50 to-white group-hover:scale-[1.02] transition-transform duration-500" 
+                  className=" w-auto mx-auto max-h-[500px] object-contain object-center rounded-2xl shadow-2xl  group-hover:scale-[1.02] transition-transform duration-500" 
                   src={aboutData.image} 
                   alt="Developer Profile" 
                 />
               ) : (
-                <div className="w-full h-[500px] flex items-center justify-center rounded-2xl shadow-2xl bg-gradient-to-br from-gray-50 to-white border-2 border-dashed border-gray-300">
+                <div className="max-h-[500px] flex items-center justify-center rounded-2xl shadow-2xl bg-gradient-to-br from-gray-50 to-white border-2 border-dashed border-gray-300">
                   <div className="text-center text-gray-400">
                     <svg className="w-24 h-24 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -171,14 +186,14 @@ const About = () => {
         {/* Technical Skills Section - Full Width Below */}
         {skills && skills.length > 0 && (
           <div className="w-full">
-            <div className="text-center mb-12">
+            <div className="text-center mb-12 ">
               <Text
                 variant="h3"
                 size="3xl"
                 fontFamily="rajdhani"
                 color="black"
                 weight="bold"
-                className="mb-4"
+                className="mb-4 !text-center"
               >
                 Technical Skills
               </Text>

@@ -22,6 +22,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: "/dashboard/about", label: "About Section", icon: "👤" },
     { href: "/dashboard/skills", label: "Technical Skills", icon: "🛠️" },
     { href: "/dashboard/services", label: "Services", icon: "💼" },
+    { href: "/dashboard/experience", label: "Experience", icon: "🧑‍💼" },
+    { href: "/dashboard/education", label: "Education", icon: "🎓" },
+    { href: "/dashboard/contact", label: "Contact", icon: "📬" },
+    { href: "/dashboard/footer", label: "Footer", icon: "⚙️" },
     { href: "/dashboard/admin-users", label: "Admin Users", icon: "🛡️" },
   ];
 

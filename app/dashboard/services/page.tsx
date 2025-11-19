@@ -11,12 +11,27 @@ type Service = {
   order?: number;
 };
 
+type ServicesMeta = {
+  heading: string;
+  subheading: string;
+  ctaHeading: string;
+  ctaDescription: string;
+  ctaButtonLabel: string;
+};
+
 export default function ServicesAdminPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState("");
   const [services, setServices] = useState<Service[]>([]);
+  const [meta, setMeta] = useState<ServicesMeta>({
+    heading: "My Services",
+    subheading: "",
+    ctaHeading: "Ready to Start Your Project?",
+    ctaDescription: "",
+    ctaButtonLabel: "Get Started Today",
+  });
 
   const iconOptions = ['code', 'shield', 'heart', 'lightning', 'database'];
 
@@ -45,6 +60,15 @@ export default function ServicesAdminPage() {
       const data = await res.json();
       if (data.success && Array.isArray(data.services)) {
         setServices(data.services);
+        if (data.meta) {
+          setMeta({
+            heading: data.meta.heading ?? "My Services",
+            subheading: data.meta.subheading ?? "",
+            ctaHeading: data.meta.ctaHeading ?? "Ready to Start Your Project?",
+            ctaDescription: data.meta.ctaDescription ?? "",
+            ctaButtonLabel: data.meta.ctaButtonLabel ?? "Get Started Today",
+          });
+        }
       }
     } catch (err) {
       console.error("Failed to load services:", err);
@@ -62,7 +86,7 @@ export default function ServicesAdminPage() {
       const res = await fetch("/api/content/services", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ services }),
+        body: JSON.stringify({ services, meta }),
         credentials: "include",
       });
 
@@ -77,6 +101,10 @@ export default function ServicesAdminPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const updateMeta = (field: keyof ServicesMeta, value: string) => {
+    setMeta((prev) => ({ ...prev, [field]: value }));
   };
 
   const addService = () => {
@@ -141,6 +169,71 @@ export default function ServicesAdminPage() {
         )}
         
         <form className="space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
+          <div className="bg-gray-50 border-2 border-gray-200 rounded-lg sm:rounded-xl p-4 sm:p-6 space-y-4">
+            <div>
+              <label className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-xs sm:text-sm uppercase tracking-wide">
+                Section Heading
+              </label>
+              <input
+                type="text"
+                value={meta.heading}
+                onChange={(e) => updateMeta("heading", e.target.value)}
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-gray-800 bg-white transition-all duration-200"
+                placeholder="My Services"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-xs sm:text-sm uppercase tracking-wide">
+                Section Subtitle
+              </label>
+              <textarea
+                value={meta.subheading}
+                onChange={(e) => updateMeta("subheading", e.target.value)}
+                rows={3}
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-gray-800 bg-white transition-all duration-200"
+                placeholder="Describe this section..."
+              />
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-xs sm:text-sm uppercase tracking-wide">
+                  CTA Heading
+                </label>
+                <input
+                  type="text"
+                  value={meta.ctaHeading}
+                  onChange={(e) => updateMeta("ctaHeading", e.target.value)}
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-gray-800 bg-white transition-all duration-200"
+                  placeholder="Ready to Start Your Project?"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-xs sm:text-sm uppercase tracking-wide">
+                  CTA Button Label
+                </label>
+                <input
+                  type="text"
+                  value={meta.ctaButtonLabel}
+                  onChange={(e) => updateMeta("ctaButtonLabel", e.target.value)}
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-gray-800 bg-white transition-all duration-200"
+                  placeholder="Get Started Today"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-xs sm:text-sm uppercase tracking-wide">
+                CTA Description
+              </label>
+              <textarea
+                value={meta.ctaDescription}
+                onChange={(e) => updateMeta("ctaDescription", e.target.value)}
+                rows={3}
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-gray-800 bg-white transition-all duration-200"
+                placeholder="Explain what happens next..."
+              />
+            </div>
+          </div>
           <div className="flex justify-end">
             <button
               type="button"
@@ -156,7 +249,7 @@ export default function ServicesAdminPage() {
             <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg sm:rounded-xl border-2 border-dashed border-gray-300">
               <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">💼</div>
               <p className="text-gray-600 font-semibold text-base sm:text-lg mb-1 sm:mb-2">No services added yet</p>
-              <p className="text-gray-400 text-sm sm:text-base">Click "Add Service" to get started</p>
+              <p className="text-gray-400 text-sm sm:text-base">Click &quot;Add Service&quot; to get started</p>
             </div>
           )}
 

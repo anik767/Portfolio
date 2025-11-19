@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import TypingAnimation from './TypingAnimation';
 import { Button, Badge, SocialLink, Text } from './theam';
+import Image from 'next/image';
 
 type HeroData = {
   greeting: string;
@@ -24,6 +25,7 @@ type HeroData = {
 
 const Hero = () => {
   const [heroData, setHeroData] = useState<HeroData | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchHeroData() {
@@ -35,10 +37,30 @@ const Hero = () => {
         }
       } catch (err) {
         console.error("Failed to fetch hero data:", err);
+      } finally {
+        setLoading(false);
       }
     }
     fetchHeroData();
   }, []);
+
+  if (loading) {
+    return (
+      <section id="home" className="min-h-screen flex items-center justify-center bg-[#F4F1EA]">
+        <div className="w-full max-w-6xl animate-pulse px-4">
+          <div className="h-4 w-32 bg-gray-200 rounded-full mb-4" />
+          <div className="h-10 w-1/2 bg-gray-200 rounded-full mb-4" />
+          <div className="h-6 w-full bg-gray-100 rounded-full mb-2" />
+          <div className="h-6 w-4/5 bg-gray-100 rounded-full mb-8" />
+          <div className="h-64 bg-gray-200 rounded-3xl" />
+        </div>
+      </section>
+    );
+  }
+
+  if (!heroData) {
+    return null;
+  }
 
   return (
     <section id="home" className="min-h-screen flex items-center relative overflow-hidden bg-[#F4F1EA]">
@@ -65,7 +87,7 @@ const Hero = () => {
           {/* Left Section - Text Content */}
           <div id="hero-content" className="text-white space-y-7 relative z-40">
             {/* Small text with enhanced styling */}
-            {heroData?.greeting && (
+            {heroData.greeting && (
               <div id="hero-greeting" className="inline-block">
                 <Badge variant="emerald" size="lg" className="tracking-[0.3em]">
                   {heroData.greeting}
@@ -79,7 +101,7 @@ const Hero = () => {
                 I AM
               </Text>
               <Text id="hero-name" variant="h1" size="4xl" color="primary" fontFamily="rajdhani" className="md:text-5xl lg:text-6xl leading-[1.2] tracking-tight drop-shadow-2xl">
-                {heroData?.name }
+                {heroData.name}
               </Text>
               <Text
                 id="hero-title"
@@ -92,12 +114,12 @@ const Hero = () => {
                 strokeWidth=".8px"
                 strokeColor="gray"
               >
-                {heroData?.title}
+                {heroData.title}
               </Text>
             </div>
 
             {/* Description with typing animation */}
-            {heroData?.description && heroData.description.length > 0 ? (
+            {heroData.description && heroData.description.length > 0 && (
               <TypingAnimation
                 text={heroData.description}
                 speed={30}
@@ -108,10 +130,6 @@ const Hero = () => {
                 fontFamily="poppins"
                 className="text-xl h-[80px] leading-relaxed font-light"
               />
-            ) : (
-              <div className="text-xl h-[80px] leading-relaxed font-light text-gray-400">
-                Add your description in the admin dashboard
-              </div>
             )}
 
             {/* Enhanced CTA Button */}
@@ -151,7 +169,12 @@ const Hero = () => {
               <Text variant="caption" color="muted" weight="medium" className="tracking-wide capitalize">
                 Find on me:
               </Text>
-              {heroData?.socialLinks && (
+              {heroData.socialLinks &&
+                (heroData.socialLinks.facebook ||
+                  heroData.socialLinks.instagram ||
+                  heroData.socialLinks.linkedin ||
+                  heroData.socialLinks.twitter ||
+                  heroData.socialLinks.github) && (
                 <div id="hero-social-links" className="flex space-x-6">
                   {heroData.socialLinks.facebook && <SocialLink href={heroData.socialLinks.facebook} platform="facebook" className="hero-social-item" />}
                   {heroData.socialLinks.instagram && <SocialLink href={heroData.socialLinks.instagram} platform="instagram" className="hero-social-item" />}
@@ -168,12 +191,12 @@ const Hero = () => {
             {/* Profile Image Container */}
             <div className="relative group">
               {/* Professional Image with enhanced styling */}
-              <div className=" h-[600px] relative flex items-center justify-center rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
-                {heroData?.personImage ? (
+              <div className="max-h-[600px]  relative flex items-center justify-center rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
+                {heroData.personImage ? (
                   <img
                     src={heroData.personImage}
                     alt={`${heroData.name || 'Person'} - ${heroData.title || 'Title'}`}
-                    className="w-full h-full object-contain object-center"
+                    className="w-full h-full object-contain object-bottom"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-800/50 text-gray-400">
@@ -199,7 +222,7 @@ const Hero = () => {
 
               {/* Experience Badge */}
               {heroData?.experience && (
-                <div className="absolute -bottom-8 left-[50%] translate-x-[-50%] bg-white/95 backdrop-blur-md rounded-2xl p-6 shadow-2xl border border-pink-200/50">
+                <div className="absolute md:-bottom-8 -bottom-5 left-[50%] translate-x-[-50%] bg-white/95 backdrop-blur-md rounded-2xl md:p-6 p-3 shadow-2xl border border-pink-200/50">
                   <div className="flex items-center space-x-3">
                     <div className="w-4 h-4 bg-linear-to-r from-pink-500 to-pink-600 rounded-full"></div>
                     <span className="text-gray-900 font-bold text-sm">{heroData.experience}</span>

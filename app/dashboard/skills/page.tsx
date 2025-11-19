@@ -103,7 +103,7 @@ export default function SkillsAdminPage() {
   return (
     <div className=" mx-auto pt-12 lg:pt-0">
       <div className="bg-gray-900 rounded-lg sm:rounded-xl p-4 sm:p-6 text-white shadow-lg mb-4 sm:mb-6">
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold mb-1 sm:mb-2 flex items-center gap-2 sm:gap-3">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold mb-1 sm:mb-2 flex items-center gap-2 sm:gap-3 ">
           <span>🛠️</span>
           <span>Manage Technical Skills</span>
         </h1>
@@ -134,7 +134,7 @@ export default function SkillsAdminPage() {
             <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg sm:rounded-xl border-2 border-dashed border-gray-300">
               <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">🛠️</div>
               <p className="text-gray-600 font-semibold text-base sm:text-lg mb-1 sm:mb-2">No skills added yet</p>
-              <p className="text-gray-400 text-sm sm:text-base">Click "Add Skill" to get started</p>
+              <p className="text-gray-400 text-sm sm:text-base">Click &quot;Add Skill&quot; to get started</p>
             </div>
           )}
 

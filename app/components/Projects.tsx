@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Text, Card, Badge, Button } from './theam';
+import Image from 'next/image';
 
 type BadgeVariant = 'emerald' | 'outline' | 'cyanblue' | 'lime' | 'sunset' | 'dark' | 'elegant' | 'fuchsia' | 'sky' | 'ocean' | 'rose' | 'amethyst' | 'arctic' | 'skyblue' | 'turquoise' | 'neoncyan' | 'neonorange' | 'electriclime' | 'seafoam' | 'mintice' | 'watermelon' | 'plum' | 'magenta' | 'lavender' | 'violet';
 
@@ -19,86 +20,7 @@ export type ProjectCard = {
   categoryVariant?: BadgeVariant;
 };
 
-const defaultProjects: ProjectCard[] = [
-    {
-      title: 'E-Commerce Platform',
-      description: 'A full-stack e-commerce solution with modern features including real-time inventory management, payment processing, and admin dashboard.',
-      image: '/images/example.png',
-      technologies: ['React', 'Node.js', 'MongoDB', 'Stripe', 'AWS'],
-      features: ['User Authentication', 'Payment Processing', 'Admin Dashboard', 'Real-time Updates', 'Mobile Responsive'],
-      liveUrl: 'https://ecommerce-demo.com',
-      githubUrl: 'https://github.com/username/ecommerce',
-      status: 'Live',
-      statusVariant: 'emerald',
-      category: 'Full Stack',
-      categoryVariant: 'emerald'
-    },
-    {
-      title: 'Task Management App',
-      description: 'A collaborative task management application with team features, real-time updates, and project tracking capabilities.',
-      image: '/images/confurm.png',
-      technologies: ['Vue.js', 'Express.js', 'PostgreSQL', 'Socket.io', 'Docker'],
-      features: ['Team Collaboration', 'Real-time Updates', 'File Sharing', 'Progress Tracking', 'Notifications'],
-      liveUrl: 'https://taskmanager-demo.com',
-      githubUrl: 'https://github.com/username/taskmanager',
-      status: 'In Progress',
-      statusVariant: 'sunset',
-      category: 'Web App',
-      categoryVariant: 'ocean'
-    },
-    {
-      title: 'Weather Dashboard',
-      description: 'A responsive weather application with location-based forecasts, interactive maps, and detailed weather analytics.',
-      image: '/images/Round_effects.jpg',
-      technologies: ['React', 'TypeScript', 'Chart.js', 'OpenWeather API', 'Tailwind CSS'],
-      features: ['Location-based Forecast', 'Interactive Maps', 'Weather Charts', '7-day Forecast', 'Mobile App'],
-      liveUrl: 'https://weather-demo.com',
-      githubUrl: 'https://github.com/username/weather',
-      status: 'Live',
-      statusVariant: 'emerald',
-      category: 'Frontend',
-      categoryVariant: 'sky'
-    },
-    {
-      title: 'Blog CMS',
-      description: 'A content management system for bloggers with markdown support, SEO optimization, and analytics dashboard.',
-      image: '/images/Image_not_found.jpg',
-      technologies: ['Next.js', 'Prisma', 'MySQL', 'Vercel', 'Cloudinary'],
-      features: ['Markdown Editor', 'SEO Optimization', 'Analytics Dashboard', 'Comment System', 'Multi-author Support'],
-      liveUrl: 'https://blog-cms-demo.com',
-      githubUrl: 'https://github.com/username/blog-cms',
-      status: 'Coming Soon',
-      statusVariant: 'sky',
-      category: 'CMS',
-      categoryVariant: 'sunset'
-    },
-    {
-      title: 'Portfolio Website',
-      description: 'A modern, responsive portfolio website showcasing projects, skills, and professional experience.',
-      image: '/images/Home/banner-background-one.jpg',
-      technologies: ['Next.js', 'Tailwind CSS', 'Framer Motion', 'TypeScript', 'Vercel'],
-      features: ['Responsive Design', 'Smooth Animations', 'Contact Form', 'Project Showcase', 'SEO Optimized'],
-      liveUrl: 'https://portfolio-demo.com',
-      githubUrl: 'https://github.com/username/portfolio',
-      status: 'Live',
-      statusVariant: 'emerald',
-      category: 'Portfolio',
-      categoryVariant: 'emerald'
-    },
-    {
-      title: 'API Integration Tool',
-      description: 'A developer tool for testing and documenting REST APIs with interactive documentation and testing capabilities.',
-      image: '/images/404.gif',
-      technologies: ['React', 'Node.js', 'Swagger', 'Jest', 'Docker'],
-      features: ['API Testing', 'Interactive Docs', 'Request Builder', 'Response Validation', 'Team Sharing'],
-      liveUrl: 'https://api-tool-demo.com',
-      githubUrl: 'https://github.com/username/api-tool',
-      status: 'Beta',
-      statusVariant: 'ocean',
-      category: 'Developer Tool',
-      categoryVariant: 'sky'
-    }
-  ];
+const defaultProjects: ProjectCard[] = [];
 
 interface ProjectsProps {
   projectsData?: ProjectCard[];
@@ -108,6 +30,12 @@ const Projects = ({ projectsData }: ProjectsProps) => {
   const [showAll, setShowAll] = useState(false);
   const projects =
     projectsData && projectsData.length > 0 ? projectsData : defaultProjects;
+
+  if (projects.length === 0) {
+    return null;
+  }
+
+  const shouldShowToggle = projects.length > 4;
 
   return (
     <section id="projects" className="py-24 relative">
@@ -153,8 +81,8 @@ const Projects = ({ projectsData }: ProjectsProps) => {
             >
               {/* Project Image */}
               <div className="relative h-56 overflow-hidden">
-                <img
-                  src={project.image}
+                <Image
+                  src={project.image || '/images/Image_not_found.jpg'}
                   alt={project.title}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   onError={(e) => {
@@ -298,32 +226,34 @@ const Projects = ({ projectsData }: ProjectsProps) => {
       </div>
       <div className="max-w-7xl mx-auto pt-4 sm:px-6 lg:px-8 relative z-10">
         {/* View All / Show Less Button */}
-        <div className="mt-16 flex justify-center">
-          <Button
-            onClick={() => setShowAll(!showAll)}
-            variant="emerald"
-            size="lg"
-            className="hover:scale-105 transition-transform duration-300 shadow-lg hover:shadow-xl"
-          >
-            <span className="inline-flex items-center">
-              {showAll ? (
-                <>
-                  Show Less
-                  <svg className="w-5 h-5 ml-2 group-hover:-translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                  </svg>
-                </>
-              ) : (
-                <>
-                  {`View All ${projects.length} Projects`}
-                  <svg className="w-5 h-5 ml-2 group-hover:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </>
-              )}
-            </span>
-          </Button>
-        </div>
+        {shouldShowToggle && (
+          <div className="mt-16 flex justify-center">
+            <Button
+              onClick={() => setShowAll(!showAll)}
+              variant="emerald"
+              size="lg"
+              className="hover:scale-105 transition-transform duration-300 shadow-lg hover:shadow-xl"
+            >
+              <span className="inline-flex items-center">
+                {showAll ? (
+                  <>
+                    Show Less
+                    <svg className="w-5 h-5 ml-2 group-hover:-translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                    </svg>
+                  </>
+                ) : (
+                  <>
+                    Expand
+                    <svg className="w-5 h-5 ml-2 group-hover:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </>
+                )}
+              </span>
+            </Button>
+          </div>
+        )}
         {/* Modern CTA Section */}
         <div className="mt-20 text-center">
           <Card

@@ -2,14 +2,19 @@
 
 import { useState, useEffect, useRef } from 'react';
 
+type TimelineInstance = {
+  play: () => void;
+  reverse: () => void;
+  kill: () => void;
+};
+
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
-  const menuRef = useRef<HTMLDivElement>(null);
   const menuItemsRef = useRef<(HTMLButtonElement | null)[]>([]);
   const overlayRef = useRef<HTMLDivElement>(null);
   const menuContainerRef = useRef<HTMLDivElement>(null);
-  const timelineRef = useRef<null | any>(null);
+  const timelineRef = useRef<TimelineInstance | null>(null);
 
   const navItems = [
     { id: 'home', label: 'Home' },
