@@ -1,0 +1,192 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { ModernInput } from '../components/ModernInput';
+
+export default function AboutAdminPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+  const [error, setError] = useState("");
+  
+  const [title, setTitle] = useState("");
+  const [slogan, setSlogan] = useState("");
+  const [heading, setHeading] = useState("");
+  const [description, setDescription] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [badges, setBadges] = useState("");
+  const [existingImage, setExistingImage] = useState("");
+
+  useEffect(() => {
+    checkAuthAndLoadData();
+  }, []);
+
+  async function checkAuthAndLoadData() {
+    try {
+      const res = await fetch("/api/auth/check", { credentials: "include" });
+      const data = await res.json();
+      if (!data.authenticated) {
+        router.push("/admin");
+        return;
+      }
+      loadAboutData();
+    } catch (err) {
+      console.error("Auth check failed:", err);
+      router.push("/admin");
+    }
+  }
+
+  async function loadAboutData() {
+    try {
+      const res = await fetch("/api/content/about", { credentials: "include" });
+      const data = await res.json();
+      if (data.success && data.about) {
+        setTitle(data.about.title || "");
+        setSlogan(data.about.slogan || "");
+        setHeading(data.about.heading || "");
+        setDescription(Array.isArray(data.about.description) ? data.about.description.join("\n") : "");
+        // Convert badges array to comma-separated format: "text:variant, text:variant"
+        if (data.about.badges && Array.isArray(data.about.badges)) {
+          const badgesStr = data.about.badges.map((b: { text: string; variant: string }) => `${b.text}:${b.variant}`).join(", ");
+          setBadges(badgesStr);
+        } else {
+          setBadges("");
+        }
+        setExistingImage(data.about.image || "");
+      }
+    } catch (err) {
+      console.error("Failed to load about data:", err);
+    } finally {
+      setFetching(false);
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("slogan", slogan);
+      formData.append("heading", heading);
+      formData.append("description", JSON.stringify(description.split("\n").filter(Boolean)));
+      if (image) formData.append("image", image);
+      formData.append("badges", badges);
+
+      const res = await fetch("/api/content/about", {
+        method: "PUT",
+        body: formData,
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || "Failed to update about data");
+
+      alert("About section updated successfully!");
+      loadAboutData();
+    } catch (err: unknown) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (fetching) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="inline-flex items-center gap-3 p-6 rounded-2xl bg-white shadow-xl border border-gray-200">
+          <div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+          <span className="text-gray-700 font-medium">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto">
+      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl p-6 text-white shadow-2xl mb-6">
+        <h1 className="text-3xl font-extrabold mb-2 flex items-center gap-3">
+          <span>👤</span>
+          <span>Manage About Section</span>
+        </h1>
+        <p className="text-white/90">Update your about section content and image</p>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+        {error && (
+          <div className="bg-red-50 border-2 border-red-200 text-red-700 px-6 py-4 rounded-xl mb-6 flex items-center gap-2">
+            <span className="text-xl">⚠️</span>
+            <span>{error}</span>
+          </div>
+        )}
+        
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <ModernInput label="Title" value={title} onChange={e => setTitle(e.target.value)} required />
+          <ModernInput label="Slogan" value={slogan} onChange={e => setSlogan(e.target.value)} required />
+          <ModernInput label="Heading" value={heading} onChange={e => setHeading(e.target.value)} required />
+          <ModernInput label="Description (one paragraph per line)" type="textarea" value={description} onChange={e => setDescription(e.target.value)} required rows={6} />
+
+          <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border-2 border-purple-100">
+            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <span>🖼️</span>
+              <span>About Image</span>
+            </h3>
+            {existingImage && (
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-2 font-semibold">Current Image:</p>
+                <img src={existingImage} alt="About" className="w-48 h-auto rounded-xl shadow-lg border-2 border-gray-200" />
+              </div>
+            )}
+            <label className="block">
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={e => setImage(e.target.files?.[0] || null)} 
+                className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer" 
+              />
+            </label>
+          </div>
+
+          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-xl border-2 border-emerald-100">
+            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <span>🏷️</span>
+              <span>Badges (comma separated)</span>
+            </h3>
+            <ModernInput 
+              label="" 
+              value={badges} 
+              onChange={e => setBadges(e.target.value)} 
+              placeholder="2+ Years Experience:emerald, 20+ Projects:cyanblue, Remote Work:elegant"
+            />
+            <p className="text-sm text-gray-600 mt-2 bg-white/50 p-3 rounded-lg border border-emerald-200">
+              <span className="font-semibold">Format:</span> "text:variant, text:variant" (e.g., "2+ Years Experience:emerald, 20+ Projects:cyanblue")
+            </p>
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={loading} 
+            className="w-full py-4 px-6 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg"
+          >
+            {loading ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Updating...</span>
+              </>
+            ) : (
+              <>
+                <span>💾</span>
+                <span>Update About Section</span>
+              </>
+            )}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+

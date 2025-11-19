@@ -8,17 +8,19 @@ if (!uri) {
 }
 
 // MongoDB connection options
-// For MongoDB Atlas, SSL/TLS is handled automatically via mongodb+srv://
+// For Vercel/serverless environments, we need to be careful with TLS
+// The connection string should handle TLS automatically for mongodb+srv://
 const options: MongoClientOptions = {
   maxPoolSize: 10,
-  serverSelectionTimeoutMS: 15000, // Increased timeout for slow connections
+  serverSelectionTimeoutMS: 20000, // Increased for serverless cold starts
   socketTimeoutMS: 45000,
-  connectTimeoutMS: 15000,
+  connectTimeoutMS: 20000,
   // Retry options
   retryWrites: true,
   retryReads: true,
-  // Don't force TLS - let connection string handle it
-  // MongoDB Atlas uses TLS by default with mongodb+srv://
+  // For serverless, don't force TLS - let the connection string handle it
+  // MongoDB Atlas with mongodb+srv:// automatically uses TLS
+  // Only set TLS explicitly if connection string doesn't include it
 };
 
 let clientPromise: Promise<MongoClient>;
@@ -33,6 +35,7 @@ function createClient() {
     if (!uri) {
       throw new Error("MONGODB_URI is not defined");
     }
+    
     console.log("Creating MongoDB client...");
     const newClient = new MongoClient(uri, options);
     

@@ -15,7 +15,7 @@ export async function GET() {
     }
 
     return NextResponse.json({ success: true, authenticated: false });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
     return NextResponse.json({ success: false, authenticated: false });
   }

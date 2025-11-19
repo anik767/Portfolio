@@ -9,9 +9,9 @@ export async function POST() {
     const cookieStore = await cookies();
     cookieStore.delete("admin_token");
     return NextResponse.json({ success: true, message: "Logged out successfully" });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
-    return NextResponse.json({ success: false, error: error.message });
+    return NextResponse.json({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
   }
 }
 

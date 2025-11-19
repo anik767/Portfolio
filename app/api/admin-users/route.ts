@@ -98,13 +98,20 @@ export async function PUT(request: Request) {
     const db = client.db("mydb");
     const { ObjectId } = await import("mongodb");
 
-    const updateData: any = {};
+    type AdminUserUpdateData = {
+      email?: string;
+      status?: string;
+      password?: string;
+      updatedAt: Date;
+    };
+    const updateData: AdminUserUpdateData = {
+      updatedAt: new Date()
+    };
     if (email) updateData.email = email.toLowerCase();
     if (status !== undefined) updateData.status = status;
     if (password) {
       updateData.password = await bcrypt.hash(password, 10);
     }
-    updateData.updatedAt = new Date();
 
     const result = await db.collection("admin_users").updateOne(
       { _id: new ObjectId(id) },

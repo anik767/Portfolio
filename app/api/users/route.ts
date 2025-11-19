@@ -20,12 +20,12 @@ export async function POST(req: Request) {
     const buffer = Buffer.from(await file.arrayBuffer());
 
     // Upload image to Cloudinary using upload_stream
-    const uploaded: any = await new Promise((resolve, reject) => {
+    const uploaded = await new Promise<{ secure_url: string; public_id: string }>((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         { folder: "users" },
         (error, result) => {
           if (error) return reject(error);
-          resolve(result);
+          resolve(result as { secure_url: string; public_id: string });
         }
       );
       stream.end(buffer);
@@ -42,9 +42,9 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, insertedId: result.insertedId });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
-    return NextResponse.json({ success: false, error: error.message });
+    return NextResponse.json({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
   }
 }
 
@@ -76,8 +76,8 @@ export async function DELETE(request: Request) {
     if (result.deletedCount === 0) return NextResponse.json({ success: false, error: "User not found" });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
-    return NextResponse.json({ success: false, error: error.message });
+    return NextResponse.json({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
   }
 }

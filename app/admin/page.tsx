@@ -133,13 +133,14 @@ export default function AdminLogin() {
             style={{
               width: "100%",
               padding: "12px",
-              background: loading ? "#ccc" : "#667eea",
               color: "white",
               border: "none",
               borderRadius: "4px",
               fontSize: "16px",
               cursor: loading ? "not-allowed" : "pointer",
-              fontWeight: "600"
+              fontWeight: "600",
+              opacity: loading ? 0.7 : 1,
+              transition: "opacity 0.2s ease",
             }}
           >
             {loading ? "Logging in..." : "Login"}
