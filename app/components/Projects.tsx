@@ -81,7 +81,7 @@ const Projects = ({ projectsData }: ProjectsProps) => {
             >
               {/* Project Image */}
               <div className="relative h-56 overflow-hidden">
-                <Image
+                <img
                   src={project.image || '/images/Image_not_found.jpg'}
                   alt={project.title}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
@@ -254,54 +254,7 @@ const Projects = ({ projectsData }: ProjectsProps) => {
             </Button>
           </div>
         )}
-        {/* Modern CTA Section */}
-        <div className="mt-20 text-center">
-          <Card
-            variant="filled"
-            className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 relative overflow-hidden group"
-            padding="xl"
-          >
-            {/* Animated Background */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            
-            <div className="relative z-10">
-              <Text
-                variant="h3"
-                size="2xl"
-                fontFamily="rajdhani"
-                color="white"
-                weight="bold"
-                align="center"
-                className="mb-4"
-              >
-                Interested in My Work?
-              </Text>
-              <Text
-                variant="body"
-                size="lg"
-                fontFamily="poppins"
-                color="white"
-                align="center"
-                className="mb-8 max-w-2xl mx-auto opacity-90"
-              >
-                Let&apos;s discuss how I can help bring your next project to life with innovative solutions and modern technologies.
-              </Text>
-              <div className="flex justify-center">
-                <Button
-                  scrollTo="contact"
-                  variant="outline"
-                  size="lg"
-                  color="gray"
-                >
-                  Start a Project
-                  <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </div>
+        
       </div>
     </section>
   );
