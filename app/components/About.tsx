@@ -104,7 +104,7 @@ const About = () => {
         </div>
 
         {/* Image and Content Side by Side */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-16 items-center mb-24">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-8 md:gap-0 items-center mb-24">
           {/* Left Column - Image */}
           <div className="relative group">
             <div className="absolute  rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>

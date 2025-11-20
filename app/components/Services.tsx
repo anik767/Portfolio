@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import React from 'react';
-import { Text, Button, Card } from './theam';
+import { Text, Card } from './theam';
 
 type Service = {
   title: string;
   description: string;
   features: string[];
-  icon: string;
+  icon?: string;
 };
 
 type ServicesMeta = {
@@ -81,6 +81,22 @@ const Services = () => {
       )
     };
     return icons[iconName] || icons.code;
+  };
+
+  const renderIconVisual = (iconValue?: string) => {
+    if (iconValue && /^https?:\/\//i.test(iconValue)) {
+      return (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={iconValue}
+            alt="Service icon"
+            className="w-16 h-16 rounded-2xl object-cover"
+          />
+        </>
+      );
+    }
+    return getIcon(iconValue || "code");
   };
 
   const renderSkeleton = () => (
@@ -159,8 +175,8 @@ const Services = () => {
               className="group service-card hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-blue-200 bg-white/80 backdrop-blur-sm"
               padding="lg"
             >
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
-                {getIcon(service.icon)}
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg overflow-hidden">
+                {renderIconVisual(service.icon)}
               </div>
               <Text 
                 variant="h3" 
@@ -196,61 +212,6 @@ const Services = () => {
             ))}
           </div>
         ) : null}
-
-        {/* Modern CTA Section */}
-        {meta && (
-        <div className="mt-20 text-center">
-          <Card 
-            variant="filled" 
-            className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white border-0 shadow-2xl hover:shadow-3xl transition-all duration-1000 relative overflow-hidden group"
-            padding="xl"
-          >
-            {/* Animated Background */}
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/50 via-pink-500/50 to-blue-500/50 opacity-0 group-hover:opacity-100 transition-opacity duration-800"></div>
-            
-            <div className="relative z-10">
-              {meta.ctaHeading && (
-                <Text 
-                  variant="h3" 
-                  size="2xl" 
-                  fontFamily="rajdhani" 
-                  color="white" 
-                  weight="bold"
-                  align="center"
-                  className="mb-4"
-                >
-                  {meta.ctaHeading}
-                </Text>
-              )}
-              {meta.ctaDescription && (
-                <Text 
-                  variant="body" 
-                  size="lg" 
-                  fontFamily="poppins" 
-                  color="white" 
-                  align="center"
-                  className="mb-8 max-w-2xl mx-auto opacity-90"
-                >
-                  {meta.ctaDescription}
-                </Text>
-              )}
-              <div className="flex justify-center">
-                <Button
-                  scrollTo="contact"
-                  variant="outline"
-                  size="lg"
-                  color="gray"
-                >
-                  {meta.ctaButtonLabel || "Get Started Today"}
-                  <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </div>
-        )}
       </div>
     </section>
   );

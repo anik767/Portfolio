@@ -1,54 +1,7 @@
 'use client';
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-const InputField = ({
-  label,
-  type = "text",
-  value,
-  onChange,
-  placeholder,
-  required = false,
-}: {
-  label: string;
-  type?: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  placeholder?: string;
-  required?: boolean;
-}) => {
-  const inputId = `input-${label.toLowerCase().replace(/\s+/g, '-')}`;
-  return (
-    <div className="mb-4">
-      <label htmlFor={inputId} className="block text-black font-semibold mb-1">{label}</label>
-      {type === "textarea" ? (
-        <textarea
-          id={inputId}
-          value={value}
-          onChange={onChange}
-          rows={4}
-          placeholder={placeholder}
-          required={required}
-          autoComplete="off"
-          spellCheck={false}
-          className="w-full px-3 py-2 rounded border border-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
-        />
-      ) : (
-        <input
-          id={inputId}
-          type={type}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          required={required}
-          autoComplete="off"
-          spellCheck={false}
-          className="w-full px-3 py-2 rounded border border-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 text-black"
-        />
-      )}
-    </div>
-  );
-};
+import { ModernInput } from "../../components/ModernInput";
 
 export default function CreateProjectPage() {
   const router = useRouter();
@@ -56,6 +9,7 @@ export default function CreateProjectPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState("");
   const [technologies, setTechnologies] = useState("");
   const [features, setFeatures] = useState("");
   const [liveUrl, setLiveUrl] = useState("");
@@ -99,49 +53,134 @@ export default function CreateProjectPage() {
     }
   };
 
+  const handleImageChange = (file: File | null) => {
+    setImage(file);
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    } else {
+      setImagePreview("");
+    }
+  };
+
   return (
-    <div className="min-h-screen py-10 px-4 bg-gray-100">
-      <div className="max-w-4xl mx-auto rounded shadow-lg p-8 bg-white">
-        <h1 className="text-3xl font-bold text-black mb-6">Create New Project</h1>
-        {error && <div className="bg-red-600 text-white px-4 py-2 rounded mb-4">{error}</div>}
+    <div className="min-h-screen py-10 px-4 bg-gray-50">
+      <div className=" mx-auto space-y-6">
+        <div className="bg-gray-900 rounded-2xl p-6 text-white shadow-xl">
+          <p className="text-xs uppercase tracking-wide text-gray-300">Projects</p>
+          <h1 className="text-3xl font-bold">Create New Project</h1>
+          <p className="text-gray-300 text-sm mt-2">
+            Publish a new case study with rich metadata, visuals, and quick links.
+          </p>
+        </div>
+
+        {error && <div className="bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded-xl">{error}</div>}
+
         <form className="space-y-6" onSubmit={handleSubmit}>
-          <InputField label="Title" value={title} onChange={e => setTitle(e.target.value)} required />
-          <InputField label="Description" type="textarea" value={description} onChange={e => setDescription(e.target.value)} required />
-
-          <div className="mb-4">
-            <label className="block text-black font-semibold mb-1">Image</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={e => setImage(e.target.files?.[0] || null)}
-              className="w-full text-black"
+          <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <ModernInput
+                label="Project Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., Commerce Dashboard Revamp"
+                required
+              />
+              <ModernInput
+                label="Category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                placeholder="Full Stack, Frontend, Product Experiment"
+              />
+            </div>
+            <ModernInput
+              label="Short Narrative"
+              type="textarea"
+              rows={5}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Summarize the challenge, your approach, and the measurable impact."
+              required
             />
-          </div>
+          </section>
 
-          <InputField label="Technologies (comma separated)" value={technologies} onChange={e => setTechnologies(e.target.value)} />
-          <InputField label="Features (comma separated)" value={features} onChange={e => setFeatures(e.target.value)} />
-          <InputField label="Live URL" type="url" value={liveUrl} onChange={e => setLiveUrl(e.target.value)} />
-          <InputField label="GitHub URL" type="url" value={githubUrl} onChange={e => setGithubUrl(e.target.value)} />
+          <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <p className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2">Hero Visual</p>
+              <div className="border-2 border-dashed border-gray-200 rounded-2xl p-4 flex flex-col items-center justify-center gap-4 text-center">
+                {imagePreview ? (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover rounded-xl shadow" />
+                  </>
+                ) : (
+                  <span className="text-4xl">🖼️</span>
+                )}
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">Upload a 1600×900 mockup or screenshot.</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageChange(e.target.files?.[0] || null)}
+                    className="text-sm text-gray-500"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <ModernInput
+                label="Technologies (comma separated)"
+                type="textarea"
+                rows={3}
+                value={technologies}
+                onChange={(e) => setTechnologies(e.target.value)}
+                placeholder="Next.js, Tailwind, Prisma, Stripe"
+              />
+              <ModernInput
+                label="Features (comma separated)"
+                type="textarea"
+                rows={3}
+                value={features}
+                onChange={(e) => setFeatures(e.target.value)}
+                placeholder="Realtime analytics, Role-based dashboards, Theme builder"
+              />
+            </div>
+          </section>
 
-          <div className="mb-4">
-            <label className="block text-black font-semibold mb-1">Status</label>
-            <select value={status} onChange={e => setStatus(e.target.value)} className="w-full px-3 py-2 rounded border border-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 text-black">
-              <option value="Live">Live</option>
-              <option value="Development">Development</option>
-              <option value="Pending">Pending</option>
-            </select>
-          </div>
+          <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <ModernInput
+              label="Live URL"
+              type="url"
+              value={liveUrl}
+              onChange={(e) => setLiveUrl(e.target.value)}
+              placeholder="https://product.com"
+            />
+            <ModernInput
+              label="GitHub Repo"
+              type="url"
+              value={githubUrl}
+              onChange={(e) => setGithubUrl(e.target.value)}
+              placeholder="https://github.com/murn/project"
+            />
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2 text-xs uppercase tracking-wide">Status</label>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="w-full text-gray-900 px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500"
+              >
+                <option value="Live">Live</option>
+                <option value="Development">Development</option>
+                <option value="Pending">Pending</option>
+              </select>
+            </div>
+          </section>
 
-          <div className="mb-4">
-            <label className="block text-black font-semibold mb-1">Category</label>
-            <select value={category} onChange={e => setCategory(e.target.value)} className="w-full px-3 py-2 rounded border border-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 text-black">
-              <option value="Full Stack">Full Stack</option>
-              <option value="Frontend">Frontend</option>
-              <option value="Backend">Backend</option>
-            </select>
-          </div>
-
-          <button type="submit" disabled={loading} className="w-full py-3 px-6 bg-green-600 hover:bg-green-500 text-white font-semibold rounded shadow transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-4 px-6 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-2xl shadow-lg transition disabled:opacity-60 disabled:cursor-not-allowed"
+          >
             {loading ? "Creating..." : "Create Project"}
           </button>
         </form>

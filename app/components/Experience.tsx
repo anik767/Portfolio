@@ -109,17 +109,17 @@ const Experience = () => {
         </div>
 
         <div id="experience-content" className="relative space-y-12">
-          <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-purple-500 to-pink-500 hidden md:block"></div>
+          
           
           {experiences.map((exp, index) => (
             <div className="relative" key={`${exp.company}-${index}`}>
-              <div className="absolute left-[21px] top-8 w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full border-4 border-white shadow-lg z-10 hidden md:block"></div>
+              
               
               <Card
                 variant="elevated"
                 hover="lift"
                 shadow="xl"
-                className="group experience-item ml-0 md:ml-20 hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-purple-200 bg-white"
+                className="group experience-item  hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-purple-200 bg-white"
                 padding="lg"
               >
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

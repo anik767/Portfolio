@@ -30,6 +30,7 @@ type FooterContactInput = {
 
 type FooterContentInput = {
   logoUrl?: string;
+  logoPublicId?: string;
   name?: string;
   tagline?: string;
 };
@@ -106,6 +107,7 @@ export async function POST(request: Request) {
 
     const sanitizedBrand = {
       logoUrl: brand.logoUrl?.trim() || "",
+      logoPublicId: brand.logoPublicId?.trim() || "",
       name: brand.name?.trim() || "",
       tagline: brand.tagline?.trim() || "",
     };

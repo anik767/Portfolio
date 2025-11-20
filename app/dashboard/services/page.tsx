@@ -1,13 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { ImageUploadField } from '../components/ImageUploadField';
+import { UploadedImage } from '../utils/uploadImage';
 
 type Service = {
   title: string;
   description: string;
   features: string[];
   icon: string;
+  iconPublicId?: string;
   order?: number;
 };
 
@@ -33,33 +36,21 @@ export default function ServicesAdminPage() {
     ctaButtonLabel: "Get Started Today",
   });
 
-  const iconOptions = ['code', 'shield', 'heart', 'lightning', 'database'];
-
-  useEffect(() => {
-    checkAuthAndLoadData();
-  }, []);
-
-  async function checkAuthAndLoadData() {
-    try {
-      const res = await fetch("/api/auth/check", { credentials: "include" });
-      const data = await res.json();
-      if (!data.authenticated) {
-        router.push("/admin");
-        return;
-      }
-      loadServices();
-    } catch (err) {
-      console.error("Auth check failed:", err);
-      router.push("/admin");
-    }
-  }
-
-  async function loadServices() {
+  const loadServices = useCallback(async () => {
     try {
       const res = await fetch("/api/content/services", { credentials: "include" });
       const data = await res.json();
       if (data.success && Array.isArray(data.services)) {
-        setServices(data.services);
+        setServices(
+          data.services.map((service: Service) => ({
+            title: service.title ?? "",
+            description: service.description ?? "",
+            features: Array.isArray(service.features) ? service.features : [],
+            icon: service.icon ?? "",
+            iconPublicId: service.iconPublicId ?? "",
+            order: service.order,
+          }))
+        );
         if (data.meta) {
           setMeta({
             heading: data.meta.heading ?? "My Services",
@@ -75,7 +66,25 @@ export default function ServicesAdminPage() {
     } finally {
       setFetching(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    const checkAuthAndLoadData = async () => {
+      try {
+        const res = await fetch("/api/auth/check", { credentials: "include" });
+        const data = await res.json();
+        if (!data.authenticated) {
+          router.push("/admin");
+          return;
+        }
+        loadServices();
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        router.push("/admin");
+      }
+    };
+    checkAuthAndLoadData();
+  }, [router, loadServices]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,12 +117,34 @@ export default function ServicesAdminPage() {
   };
 
   const addService = () => {
-    setServices([...services, { title: "", description: "", features: [], icon: "code", order: services.length }]);
+    setServices([...services, { title: "", description: "", features: [], icon: "", order: services.length }]);
   };
 
   const removeService = (index: number) => {
     setServices(services.filter((_, i) => i !== index));
   };
+
+  const handleIconChange = (index: number, image: UploadedImage | null) => {
+    setServices((prev) => {
+      const copy = [...prev];
+      copy[index] = {
+        ...copy[index],
+        icon: image?.url ?? "",
+        iconPublicId: image?.publicId ?? "",
+      };
+      return copy;
+    });
+  };
+
+  const stats = useMemo(() => {
+    const totalFeatures = services.reduce((sum, service) => sum + service.features.length, 0);
+    const withIcons = services.filter((service) => service.icon).length;
+    return {
+      totalServices: services.length,
+      totalFeatures,
+      withIcons,
+    };
+  }, [services]);
 
   const updateService = (index: number, field: keyof Service, value: string | string[]) => {
     const updated = [...services];
@@ -160,6 +191,24 @@ export default function ServicesAdminPage() {
         <p className="text-gray-300 text-xs sm:text-sm">Add and manage your service offerings</p>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4 sm:mb-6">
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
+          <p className="text-xs uppercase text-gray-500">Total Services</p>
+          <p className="text-3xl font-bold text-gray-900">{stats.totalServices}</p>
+          <p className="text-xs text-gray-400">Aim for 3-6 focused offerings</p>
+        </div>
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
+          <p className="text-xs uppercase text-gray-500">Feature Bullets</p>
+          <p className="text-3xl font-bold text-gray-900">{stats.totalFeatures}</p>
+          <p className="text-xs text-gray-400">Key value props per service</p>
+        </div>
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
+          <p className="text-xs uppercase text-gray-500">Custom Icons</p>
+          <p className="text-3xl font-bold text-gray-900">{stats.withIcons}/{stats.totalServices || 1}</p>
+          <p className="text-xs text-gray-400">Upload branded illustrations</p>
+        </div>
+      </div>
+
       <div className="bg-white rounded-lg sm:rounded-2xl shadow-xl border border-gray-100 p-4 sm:p-6 lg:p-8">
         {error && (
           <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 sm:px-6 py-3 sm:py-4 rounded-lg sm:rounded-xl mb-4 sm:mb-6 flex items-center gap-2">
@@ -179,7 +228,7 @@ export default function ServicesAdminPage() {
                 value={meta.heading}
                 onChange={(e) => updateMeta("heading", e.target.value)}
                 className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-gray-800 bg-white transition-all duration-200"
-                placeholder="My Services"
+                placeholder="e.g., Signature Services"
                 required
               />
             </div>
@@ -192,7 +241,7 @@ export default function ServicesAdminPage() {
                 onChange={(e) => updateMeta("subheading", e.target.value)}
                 rows={3}
                 className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-gray-800 bg-white transition-all duration-200"
-                placeholder="Describe this section..."
+                placeholder="Explain what sets your services apart..."
               />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -205,7 +254,7 @@ export default function ServicesAdminPage() {
                   value={meta.ctaHeading}
                   onChange={(e) => updateMeta("ctaHeading", e.target.value)}
                   className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-gray-800 bg-white transition-all duration-200"
-                  placeholder="Ready to Start Your Project?"
+                  placeholder="e.g., Ready to Start Your Project?"
                 />
               </div>
               <div>
@@ -217,7 +266,7 @@ export default function ServicesAdminPage() {
                   value={meta.ctaButtonLabel}
                   onChange={(e) => updateMeta("ctaButtonLabel", e.target.value)}
                   className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-gray-800 bg-white transition-all duration-200"
-                  placeholder="Get Started Today"
+                  placeholder="e.g., Book a Discovery Call"
                 />
               </div>
             </div>
@@ -230,7 +279,7 @@ export default function ServicesAdminPage() {
                 onChange={(e) => updateMeta("ctaDescription", e.target.value)}
                 rows={3}
                 className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-gray-800 bg-white transition-all duration-200"
-                placeholder="Explain what happens next..."
+                placeholder="Share what happens after someone reaches out..."
               />
             </div>
           </div>
@@ -302,20 +351,14 @@ export default function ServicesAdminPage() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-gray-700 font-semibold mb-1 sm:mb-2 text-xs sm:text-sm uppercase tracking-wide">
-                      Icon
-                    </label>
-                    <select
-                      value={service.icon}
-                      onChange={e => updateService(index, "icon", e.target.value)}
-                      className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 text-gray-800 bg-white transition-all duration-200"
-                    >
-                      {iconOptions.map(icon => (
-                        <option key={icon} value={icon}>{icon}</option>
-                      ))}
-                    </select>
-                  </div>
+                  <ImageUploadField
+                    label="Service Icon"
+                    folder="services/icons"
+                    helperText="Use a 512x512 transparent PNG or SVG illustration"
+                    example="Tip: Match the color palette of each service"
+                    value={service.icon ? { url: service.icon, publicId: service.iconPublicId } : null}
+                    onChange={(image) => handleIconChange(index, image)}
+                  />
 
                   <div className="bg-white p-3 sm:p-4 rounded-lg sm:rounded-xl border border-gray-200">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 mb-2 sm:mb-3">
@@ -338,7 +381,7 @@ export default function ServicesAdminPage() {
                           value={feature}
                           onChange={e => updateFeature(index, featureIndex, e.target.value)}
                           className="flex-1 px-3 sm:px-4 py-1.5 sm:py-2 text-sm sm:text-base rounded-lg border-2 border-gray-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 text-gray-800 bg-white transition-all duration-200"
-                          placeholder="Feature name"
+                          placeholder="e.g., Dedicated project manager"
                         />
                         <button
                           type="button"

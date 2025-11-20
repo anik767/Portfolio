@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ModernInput } from "../components/ModernInput";
+import { ImageUploadField } from "../components/ImageUploadField";
+import { UploadedImage } from "../utils/uploadImage";
 
 type BrandInfo = {
   logoUrl: string;
+  logoPublicId?: string;
   name: string;
   tagline: string;
 };
@@ -48,7 +51,7 @@ const socialPlatformOptions = [
 
 export default function FooterAdminPage() {
   const router = useRouter();
-  const [brand, setBrand] = useState<BrandInfo>({ logoUrl: "", name: "", tagline: "" });
+  const [brand, setBrand] = useState<BrandInfo>({ logoUrl: "", logoPublicId: "", name: "", tagline: "" });
   const [quickLinks, setQuickLinks] = useState<QuickLink[]>([]);
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [contact, setContact] = useState<ContactInfo>({ email: "", phone: "", location: "" });
@@ -57,32 +60,14 @@ export default function FooterAdminPage() {
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    checkAuthAndLoad();
-  }, []);
-
-  async function checkAuthAndLoad() {
-    try {
-      const res = await fetch("/api/auth/check", { credentials: "include" });
-      const data = await res.json();
-      if (!data.authenticated) {
-        router.push("/admin");
-        return;
-      }
-      await loadFooter();
-    } catch (err) {
-      console.error("Auth check failed:", err);
-      router.push("/admin");
-    }
-  }
-
-  async function loadFooter() {
+  const loadFooter = useCallback(async () => {
     try {
       const res = await fetch("/api/content/footer", { credentials: "include" });
       const data = await res.json();
       if (data.success) {
         setBrand({
           logoUrl: data.brand?.logoUrl ?? "",
+          logoPublicId: data.brand?.logoPublicId ?? "",
           name: data.brand?.name ?? "",
           tagline: data.brand?.tagline ?? "",
         });
@@ -100,7 +85,25 @@ export default function FooterAdminPage() {
     } finally {
       setFetching(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    const checkAuthAndLoad = async () => {
+      try {
+        const res = await fetch("/api/auth/check", { credentials: "include" });
+        const data = await res.json();
+        if (!data.authenticated) {
+          router.push("/admin");
+          return;
+        }
+        await loadFooter();
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        router.push("/admin");
+      }
+    };
+    checkAuthAndLoad();
+  }, [router, loadFooter]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,6 +151,14 @@ export default function FooterAdminPage() {
   const removeSocialLink = (index: number) =>
     setSocialLinks((prev) => prev.filter((_, i) => i !== index));
 
+  const handleLogoUpload = (image: UploadedImage | null) => {
+    setBrand((prev) => ({
+      ...prev,
+      logoUrl: image?.url ?? "",
+      logoPublicId: image?.publicId ?? "",
+    }));
+  };
+
   if (fetching) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -178,17 +189,18 @@ export default function FooterAdminPage() {
 
         <form className="space-y-8" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <ModernInput
-              label="Logo URL"
-              value={brand.logoUrl}
-              onChange={(e) => setBrand((prev) => ({ ...prev, logoUrl: e.target.value }))}
-              placeholder="https://example.com/logo.png"
+            <ImageUploadField
+              label="Brand Logo"
+              folder="footer/branding"
+              helperText="Upload a transparent SVG/PNG · Recommended 240x80"
+              value={brand.logoUrl ? { url: brand.logoUrl, publicId: brand.logoPublicId } : null}
+              onChange={handleLogoUpload}
             />
             <ModernInput
               label="Brand Name"
               value={brand.name}
               onChange={(e) => setBrand((prev) => ({ ...prev, name: e.target.value }))}
-              placeholder="Company Name"
+              placeholder="e.g., Murn Studio"
             />
             <ModernInput
               label="Tagline"
@@ -196,7 +208,7 @@ export default function FooterAdminPage() {
               rows={3}
               value={brand.tagline}
               onChange={(e) => setBrand((prev) => ({ ...prev, tagline: e.target.value }))}
-              placeholder="Short description or mission statement"
+              placeholder="Share a short positioning statement or CTA"
               className="lg:col-span-2"
             />
           </div>
@@ -226,7 +238,7 @@ export default function FooterAdminPage() {
                   label="Label"
                   value={link.label}
                   onChange={(e) => updateQuickLink(index, "label", e.target.value)}
-                  placeholder="Home"
+                  placeholder="e.g., Services"
                 />
                 <div className="lg:col-span-2">
                   <label className="block text-gray-700 font-semibold mb-2 text-sm uppercase tracking-wide">
@@ -298,7 +310,7 @@ export default function FooterAdminPage() {
                   label="URL"
                   value={link.url}
                   onChange={(e) => updateSocialLink(index, "url", e.target.value)}
-                  placeholder="https://facebook.com/username"
+                  placeholder="https://instagram.com/murnstudio"
                   className="lg:col-span-2"
                 />
                 <button

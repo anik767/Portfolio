@@ -191,7 +191,7 @@ const Hero = () => {
             {/* Profile Image Container */}
             <div className="relative group">
               {/* Professional Image with enhanced styling */}
-              <div className="max-h-[600px]  relative flex items-center justify-center rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
+              <div className="h-[600px]  relative flex items-center justify-center rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
                 {heroData.personImage ? (
                   <img
                     src={heroData.personImage}

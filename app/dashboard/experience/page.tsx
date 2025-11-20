@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ModernInput } from "../components/ModernInput";
+import { ImageUploadField } from "../components/ImageUploadField";
+import { UploadedImage } from "../utils/uploadImage";
 
 type ExperienceItem = {
   company: string;
@@ -10,6 +12,7 @@ type ExperienceItem = {
   duration: string;
   location: string;
   logo: string;
+  logoPublicId?: string;
   description: string;
   technologies: string[];
   achievements: string[];
@@ -21,6 +24,7 @@ const emptyItem = (): ExperienceItem => ({
   duration: "",
   location: "",
   logo: "",
+  logoPublicId: "",
   description: "",
   technologies: [],
   achievements: [],
@@ -35,26 +39,7 @@ export default function ExperienceAdminPage() {
   const [subheading, setSubheading] = useState("");
   const [items, setItems] = useState<ExperienceItem[]>([]);
 
-  useEffect(() => {
-    checkAuthAndLoadData();
-  }, []);
-
-  async function checkAuthAndLoadData() {
-    try {
-      const res = await fetch("/api/auth/check", { credentials: "include" });
-      const data = await res.json();
-      if (!data.authenticated) {
-        router.push("/admin");
-        return;
-      }
-      await loadExperience();
-    } catch (err) {
-      console.error("Auth check failed:", err);
-      router.push("/admin");
-    }
-  }
-
-  async function loadExperience() {
+  const loadExperience = useCallback(async () => {
     try {
       const res = await fetch("/api/content/experience", { credentials: "include" });
       const data = await res.json();
@@ -69,6 +54,7 @@ export default function ExperienceAdminPage() {
               duration: item.duration ?? "",
               location: item.location ?? "",
               logo: item.logo ?? "",
+              logoPublicId: item.logoPublicId ?? "",
               description: item.description ?? "",
               technologies: Array.isArray(item.technologies) ? item.technologies : [],
               achievements: Array.isArray(item.achievements) ? item.achievements : [],
@@ -84,7 +70,25 @@ export default function ExperienceAdminPage() {
     } finally {
       setFetching(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    const checkAuthAndLoadData = async () => {
+      try {
+        const res = await fetch("/api/auth/check", { credentials: "include" });
+        const data = await res.json();
+        if (!data.authenticated) {
+          router.push("/admin");
+          return;
+        }
+        await loadExperience();
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        router.push("/admin");
+      }
+    };
+    checkAuthAndLoadData();
+  }, [router, loadExperience]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,6 +142,28 @@ export default function ExperienceAdminPage() {
     updateItem(index, field, parsed);
   };
 
+  const handleLogoUpload = (index: number, image: UploadedImage | null) => {
+    setItems((prev) => {
+      const copy = [...prev];
+      copy[index] = {
+        ...copy[index],
+        logo: image?.url ?? "",
+        logoPublicId: image?.publicId ?? "",
+      };
+      return copy;
+    });
+  };
+
+  const stats = useMemo(() => {
+    const totalTechnologies = items.reduce((sum, item) => sum + item.technologies.length, 0);
+    const totalAchievements = items.reduce((sum, item) => sum + item.achievements.length, 0);
+    return {
+      roles: items.length,
+      techCount: totalTechnologies,
+      achievementCount: totalAchievements,
+    };
+  }, [items]);
+
   if (fetching) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -159,6 +185,24 @@ export default function ExperienceAdminPage() {
         <p className="text-gray-300 text-xs sm:text-sm">Manage your professional journey</p>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
+          <p className="text-xs uppercase text-gray-500">Roles Logged</p>
+          <p className="text-3xl font-bold text-gray-900">{stats.roles}</p>
+          <p className="text-xs text-gray-400">Aim for 3+ notable roles</p>
+        </div>
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
+          <p className="text-xs uppercase text-gray-500">Technologies Highlighted</p>
+          <p className="text-3xl font-bold text-gray-900">{stats.techCount}</p>
+          <p className="text-xs text-gray-400">Stack keywords per role</p>
+        </div>
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
+          <p className="text-xs uppercase text-gray-500">Impact Statements</p>
+          <p className="text-3xl font-bold text-gray-900">{stats.achievementCount}</p>
+          <p className="text-xs text-gray-400">Use metrics when possible</p>
+        </div>
+      </div>
+
       <div className="bg-white rounded-lg sm:rounded-2xl shadow-xl border border-gray-100 p-4 sm:p-6 lg:p-8 space-y-6">
         {error && (
           <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 sm:px-6 py-3 sm:py-4 rounded-lg sm:rounded-xl flex items-center gap-2">
@@ -173,7 +217,7 @@ export default function ExperienceAdminPage() {
               label="Section Heading"
               value={heading}
               onChange={(e) => setHeading(e.target.value)}
-              placeholder="Work Experience"
+              placeholder="e.g., Work Experience"
             />
             <ModernInput
               label="Section Subtitle"
@@ -181,7 +225,7 @@ export default function ExperienceAdminPage() {
               rows={3}
               value={subheading}
               onChange={(e) => setSubheading(e.target.value)}
-              placeholder="Describe this section"
+              placeholder="e.g., Highlights of my most recent engineering roles"
             />
           </div>
 
@@ -229,29 +273,35 @@ export default function ExperienceAdminPage() {
                     value={item.company}
                     onChange={(e) => updateItem(index, "company", e.target.value)}
                     required
+                    placeholder="e.g., Vercel"
                   />
                   <ModernInput
                     label="Position"
                     value={item.position}
                     onChange={(e) => updateItem(index, "position", e.target.value)}
                     required
+                    placeholder="e.g., Senior Frontend Engineer"
                   />
                   <ModernInput
                     label="Duration"
                     value={item.duration}
                     onChange={(e) => updateItem(index, "duration", e.target.value)}
-                    placeholder="e.g., 2020 - Present"
+                    placeholder="e.g., Jan 2022 – Present"
                   />
                   <ModernInput
                     label="Location"
                     value={item.location}
                     onChange={(e) => updateItem(index, "location", e.target.value)}
+                    placeholder="e.g., Remote · Berlin, Germany"
                   />
-                  <ModernInput
-                    label="Logo URL"
-                    value={item.logo}
-                    onChange={(e) => updateItem(index, "logo", e.target.value)}
-                    placeholder="https://..."
+                  <ImageUploadField
+                    label="Company Logo"
+                    folder="experience/logos"
+                    helperText="Square SVG/PNG works best on timeline cards"
+                    example="Upload the official employer mark"
+                    value={item.logo ? { url: item.logo, publicId: item.logoPublicId } : null}
+                    onChange={(image) => handleLogoUpload(index, image)}
+                    className="lg:col-span-2"
                   />
                   <ModernInput
                     label="Description"
@@ -259,6 +309,7 @@ export default function ExperienceAdminPage() {
                     rows={4}
                     value={item.description}
                     onChange={(e) => updateItem(index, "description", e.target.value)}
+                    placeholder="Summarize responsibilities in 2-3 sentences"
                   />
                 </div>
 
@@ -270,7 +321,7 @@ export default function ExperienceAdminPage() {
                     rows={3}
                     value={item.technologies.join(", ")}
                     onChange={(e) => updateListFromText(index, "technologies", e.target.value)}
-                    placeholder="Next.js, React, Node.js"
+                    placeholder="Next.js, React, GraphQL, Storybook"
                   />
                 </div>
 
@@ -282,7 +333,7 @@ export default function ExperienceAdminPage() {
                     rows={3}
                     value={item.achievements.join(", ")}
                     onChange={(e) => updateListFromText(index, "achievements", e.target.value)}
-                    placeholder="Reduced load time by 40%, Led team of 5 developers"
+                    placeholder="Shipped redesign increasing signups 38%, Led team of 5 engineers"
                   />
                 </div>
               </div>

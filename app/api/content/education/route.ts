@@ -18,6 +18,7 @@ type EducationInput = {
   duration?: string;
   location?: string;
   logo?: string;
+  logoPublicId?: string;
   gpa?: string;
   description?: string;
   courses?: string[];
@@ -31,6 +32,7 @@ type CertificationInput = {
   date?: string;
   credentialId?: string;
   logo?: string;
+  logoPublicId?: string;
   description?: string;
   skills?: string[];
   order?: number;
@@ -49,6 +51,7 @@ const sanitizeEducation = (item: EducationInput, index: number) => ({
   duration: item.duration?.trim() || "",
   location: item.location?.trim() || "",
   logo: item.logo?.trim() || "",
+  logoPublicId: item.logoPublicId?.trim() || "",
   gpa: item.gpa?.trim() || "",
   description: item.description?.trim() || "",
   courses: sanitizeArray(item.courses),
@@ -62,6 +65,7 @@ const sanitizeCertification = (item: CertificationInput, index: number) => ({
   date: item.date?.trim() || "",
   credentialId: item.credentialId?.trim() || "",
   logo: item.logo?.trim() || "",
+  logoPublicId: item.logoPublicId?.trim() || "",
   description: item.description?.trim() || "",
   skills: sanitizeArray(item.skills),
   order: typeof item.order === "number" ? item.order : index,

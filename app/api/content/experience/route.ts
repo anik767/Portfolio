@@ -18,6 +18,7 @@ type ExperienceItemInput = {
   duration?: string;
   location?: string;
   logo?: string;
+  logoPublicId?: string;
   description?: string;
   technologies?: string[];
   achievements?: string[];
@@ -38,6 +39,7 @@ function sanitizeItem(item: ExperienceItemInput, index: number) {
     duration: item.duration?.trim() || "",
     location: item.location?.trim() || "",
     logo: item.logo?.trim() || "",
+    logoPublicId: item.logoPublicId?.trim() || "",
     description: item.description?.trim() || "",
     technologies: sanitizeArray(item.technologies || []),
     achievements: sanitizeArray(item.achievements || []),

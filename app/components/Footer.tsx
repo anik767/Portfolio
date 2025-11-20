@@ -119,7 +119,7 @@ const Footer = () => {
               <div className="flex items-center mb-4 gap-3">
                 {brand.logoUrl ? (
                   <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-800">
-                    <img src={brand.logoUrl} alt={brand.name || 'Logo'} className="w-full h-full object-cover" />
+                    <img src={brand.logoUrl} alt={brand.name || 'Logo'} className="w-full h-full object-cover object-top" />
                   </div>
                 ) : (
                   <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center text-xl font-bold">
