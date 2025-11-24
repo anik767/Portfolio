@@ -17,6 +17,8 @@ type EducationEntry = {
   description: string;
   courses: string[];
   achievements: string[];
+  coursesInput: string;
+  achievementsInput: string;
 };
 
 type CertificationEntry = {
@@ -28,6 +30,7 @@ type CertificationEntry = {
   logoPublicId?: string;
   description: string;
   skills: string[];
+  skillsInput: string;
 };
 
 const emptyEducation = (): EducationEntry => ({
@@ -41,6 +44,8 @@ const emptyEducation = (): EducationEntry => ({
   description: "",
   courses: [],
   achievements: [],
+  coursesInput: "",
+  achievementsInput: "",
 });
 
 const emptyCertification = (): CertificationEntry => ({
@@ -52,6 +57,7 @@ const emptyCertification = (): CertificationEntry => ({
   logoPublicId: "",
   description: "",
   skills: [],
+  skillsInput: "",
 });
 
 export default function EducationAdminPage() {
@@ -78,34 +84,44 @@ export default function EducationAdminPage() {
         setCertHeading(data.certificationsHeading ?? "Professional Certifications");
         if (Array.isArray(data.education)) {
           setEducation(
-            data.education.map((item: EducationEntry) => ({
-              institution: item.institution ?? "",
-              degree: item.degree ?? "",
-              duration: item.duration ?? "",
-              location: item.location ?? "",
-              logo: item.logo ?? "",
-              logoPublicId: item.logoPublicId ?? "",
-              gpa: item.gpa ?? "",
-              description: item.description ?? "",
-              courses: Array.isArray(item.courses) ? item.courses : [],
-              achievements: Array.isArray(item.achievements) ? item.achievements : [],
-            }))
+            data.education.map((item: EducationEntry) => {
+              const courses = Array.isArray(item.courses) ? item.courses : [];
+              const achievements = Array.isArray(item.achievements) ? item.achievements : [];
+              return {
+                institution: item.institution ?? "",
+                degree: item.degree ?? "",
+                duration: item.duration ?? "",
+                location: item.location ?? "",
+                logo: item.logo ?? "",
+                logoPublicId: item.logoPublicId ?? "",
+                gpa: item.gpa ?? "",
+                description: item.description ?? "",
+                courses,
+                achievements,
+                coursesInput: courses.join(", "),
+                achievementsInput: achievements.join(", "),
+              };
+            })
           );
         } else {
           setEducation([]);
         }
         if (Array.isArray(data.certifications)) {
           setCertifications(
-            data.certifications.map((item: CertificationEntry) => ({
-              name: item.name ?? "",
-              issuer: item.issuer ?? "",
-              date: item.date ?? "",
-              credentialId: item.credentialId ?? "",
-              logo: item.logo ?? "",
-              logoPublicId: item.logoPublicId ?? "",
-              description: item.description ?? "",
-              skills: Array.isArray(item.skills) ? item.skills : [],
-            }))
+            data.certifications.map((item: CertificationEntry) => {
+              const skills = Array.isArray(item.skills) ? item.skills : [];
+              return {
+                name: item.name ?? "",
+                issuer: item.issuer ?? "",
+                date: item.date ?? "",
+                credentialId: item.credentialId ?? "",
+                logo: item.logo ?? "",
+                logoPublicId: item.logoPublicId ?? "",
+                description: item.description ?? "",
+                skills,
+                skillsInput: skills.join(", "),
+              };
+            })
           );
         } else {
           setCertifications([]);
@@ -151,8 +167,24 @@ export default function EducationAdminPage() {
           subheading,
           educationHeading,
           certificationsHeading: certHeading,
-          education,
-          certifications,
+          education: education.map((item: EducationEntry) => {
+            const { coursesInput, achievementsInput, ...rest } = item;
+            void coursesInput;
+            void achievementsInput;
+            return {
+              ...rest,
+              courses: rest.courses.map((course) => course.trim()).filter(Boolean),
+              achievements: rest.achievements.map((ach) => ach.trim()).filter(Boolean),
+            };
+          }),
+          certifications: certifications.map((item: CertificationEntry) => {
+            const { skillsInput, ...rest } = item;
+            void skillsInput;
+            return {
+              ...rest,
+              skills: rest.skills.map((skill) => skill.trim()).filter(Boolean),
+            };
+          }),
         }),
       });
       const data = await res.json();
@@ -216,31 +248,56 @@ export default function EducationAdminPage() {
   const removeCertificationEntry = (index: number) =>
     setCertifications((prev) => prev.filter((_, i) => i !== index));
 
+  const listInputFieldMap = {
+    courses: "coursesInput",
+    achievements: "achievementsInput",
+  } as const;
+
+  const parseListInput = (value: string) =>
+    value
+      .split(/[\n,]/)
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+
   const updateEducationListFromText = (
     index: number,
     field: "courses" | "achievements",
     value: string
   ) => {
-    const parsed = value
-      .split(",")
-      .map((entry) => entry.trim())
-      .filter(Boolean);
-    updateEducationField(index, field, parsed);
+    const parsed = parseListInput(value);
+    const inputField = listInputFieldMap[field];
+    setEducation((prev) => {
+      const copy = [...prev];
+      copy[index] = {
+        ...copy[index],
+        [field]: parsed,
+        [inputField]: value,
+      };
+      return copy;
+    });
   };
 
   const updateCertificationSkillsFromText = (index: number, value: string) => {
-    const parsed = value
-      .split(",")
-      .map((entry) => entry.trim())
-      .filter(Boolean);
-    updateCertificationField(index, "skills", parsed);
+    const parsed = parseListInput(value);
+    setCertifications((prev) => {
+      const copy = [...prev];
+      copy[index] = {
+        ...copy[index],
+        skills: parsed,
+        skillsInput: value,
+      };
+      return copy;
+    });
   };
 
   const stats = useMemo(() => {
     return {
       schools: education.length,
       certifications: certifications.length,
-      highlightedCourses: education.reduce((sum, entry) => sum + entry.courses.length, 0),
+      highlightedCourses: education.reduce(
+        (sum, entry) => sum + entry.courses.filter(Boolean).length,
+        0
+      ),
     };
   }, [education, certifications]);
 
@@ -413,7 +470,7 @@ export default function EducationAdminPage() {
                     label=""
                     type="textarea"
                     rows={3}
-                    value={edu.courses.join(", ")}
+                    value={edu.coursesInput ?? edu.courses.join(", ")}
                     onChange={(e) => updateEducationListFromText(index, "courses", e.target.value)}
                     placeholder="e.g., Data Structures, Systems Programming, Product Design"
                   />
@@ -425,7 +482,7 @@ export default function EducationAdminPage() {
                     label=""
                     type="textarea"
                     rows={3}
-                    value={edu.achievements.join(", ")}
+                    value={edu.achievementsInput ?? edu.achievements.join(", ")}
                     onChange={(e) => updateEducationListFromText(index, "achievements", e.target.value)}
                     placeholder="Dean's List (2x), Hackathon Winner, Engineering Society Lead"
                   />
@@ -522,7 +579,7 @@ export default function EducationAdminPage() {
                     label=""
                     type="textarea"
                     rows={3}
-                    value={cert.skills.join(", ")}
+                    value={cert.skillsInput ?? cert.skills.join(", ")}
                     onChange={(e) => updateCertificationSkillsFromText(index, e.target.value)}
                     placeholder="AWS, Terraform, Serverless, Cost Optimization"
                   />

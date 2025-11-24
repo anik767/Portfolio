@@ -37,7 +37,7 @@ const TypingAnimation = ({
     sans: 'font-sans',
     poppins: 'font-poppins',
     playfair: 'font-playfair',
-    rajdhani: 'font-rajdhani',
+    rajdhani: 'rajdhani',
     mono: 'font-mono'
   } as const;
 

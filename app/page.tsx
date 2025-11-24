@@ -57,7 +57,10 @@ export default function Home() {
   const projectCards = mapprojectToProjects(project);
 
   return (
-    <div className="bg-[#F4F1EA] text-slate-900">
+    <div className="bg-[#ECEFF1]
+
+
+ text-slate-900">
       <Header />
       <main className="relative overflow-hidden">
         <Hero />

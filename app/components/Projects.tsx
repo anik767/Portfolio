@@ -38,7 +38,7 @@ const Projects = ({ projectsData }: ProjectsProps) => {
   const shouldShowToggle = projects.length > 4;
 
   return (
-    <section id="projects" className="py-24 relative">
+    <section id="projects" className="pb-24 relative">
       <div id="projects-header" className="text-center mb-20 relative z-10">
         <Text
           variant="h2"
@@ -51,7 +51,7 @@ const Projects = ({ projectsData }: ProjectsProps) => {
         >
           My Projects
         </Text>
-        <div className="w-24 h-1.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 mx-auto mb-6 rounded-full"></div>
+        <div className="w-24 h-1.5 bg-gradient-to-r from-teal-300 via-emerald-400 to-green-500 mx-auto rounded-full mb-4"></div>
         <Text
           variant="body"
           size="lg"
@@ -80,7 +80,7 @@ const Projects = ({ projectsData }: ProjectsProps) => {
               padding="none"
             >
               {/* Project Image */}
-              <div className="relative h-56 overflow-hidden">
+              <div className="relative h-[250px] overflow-hidden">
                 <img
                   src={project.image || '/images/Image_not_found.jpg'}
                   alt={project.title}

@@ -47,13 +47,41 @@ const Hero = () => {
   if (loading) {
     return (
       <section id="home" className="min-h-screen flex items-center justify-center bg-[#F4F1EA]">
-        <div className="w-full max-w-6xl animate-pulse px-4">
-          <div className="h-4 w-32 bg-gray-200 rounded-full mb-4" />
-          <div className="h-10 w-1/2 bg-gray-200 rounded-full mb-4" />
-          <div className="h-6 w-full bg-gray-100 rounded-full mb-2" />
-          <div className="h-6 w-4/5 bg-gray-100 rounded-full mb-8" />
-          <div className="h-64 bg-gray-200 rounded-3xl" />
+        <div className="container px-4 sm:px-6 lg:px-8 py-20 w-full relative z-30">
+          <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-16 items-center">
+            <div className="space-y-6">
+
+              <div className="h-4 w-32 bg-gray-200 rounded-full animate-pulse" />
+              <div className="h-13 w-32 bg-gray-200 rounded-full animate-pulse" />
+              <div className="h-13 w-1/2 bg-gray-200 rounded-full animate-pulse" />
+              <div className="h-13 w-1/2 bg-gray-200 rounded-full animate-pulse" />
+
+              <div className="h-6 w-full bg-gray-100 rounded-full animate-pulse" />
+              <div className="h-6 w-4/5 bg-gray-100 rounded-full animate-pulse" />
+
+              <div className="flex items-center space-x-6">
+                <div className="h-10 w-[30%] bg-gray-200 rounded-full animate-pulse" />
+                <div className="h-10 w-[30%] bg-gray-200 rounded-full animate-pulse" />
+              </div>
+
+              <div className="h-4 w-20 bg-gray-200 rounded-full animate-pulse" />
+
+              <div className="flex items-center space-x-6">
+                <div className="h-12 w-12 bg-gray-200 rounded-[10px] animate-pulse" />
+                <div className="h-12 w-12 bg-gray-200 rounded-[10px] animate-pulse" />
+                <div className="h-12 w-12 bg-gray-200 rounded-[10px] animate-pulse" />
+                <div className="h-12 w-12 bg-gray-200 rounded-[10px] animate-pulse" />
+                <div className="h-12 w-12 bg-gray-200 rounded-[10px] animate-pulse" />
+              </div>
+
+            </div>
+
+            <div className="relative z-40">
+              <div className="h-[600px] w-full bg-gray-200 rounded-3xl animate-pulse" />
+            </div>
+          </div>
         </div>
+
       </section>
     );
   }
@@ -175,50 +203,50 @@ const Hero = () => {
                   heroData.socialLinks.linkedin ||
                   heroData.socialLinks.twitter ||
                   heroData.socialLinks.github) && (
-                <div id="hero-social-links" className="flex space-x-6">
-                  {heroData.socialLinks.facebook && <SocialLink href={heroData.socialLinks.facebook} platform="facebook" className="hero-social-item" />}
-                  {heroData.socialLinks.instagram && <SocialLink href={heroData.socialLinks.instagram} platform="instagram" className="hero-social-item" />}
-                  {heroData.socialLinks.linkedin && <SocialLink href={heroData.socialLinks.linkedin} platform="linkedin" className="hero-social-item" />}
-                  {heroData.socialLinks.twitter && <SocialLink href={heroData.socialLinks.twitter} platform="twitter" className="hero-social-item" />}
-                  {heroData.socialLinks.github && <SocialLink href={heroData.socialLinks.github} platform="github" className="hero-social-item" />}
-                </div>
-              )}
+                  <div id="hero-social-links" className="flex space-x-6">
+                    {heroData.socialLinks.facebook && <SocialLink href={heroData.socialLinks.facebook} platform="facebook" className="hero-social-item" />}
+                    {heroData.socialLinks.instagram && <SocialLink href={heroData.socialLinks.instagram} platform="instagram" className="hero-social-item" />}
+                    {heroData.socialLinks.linkedin && <SocialLink href={heroData.socialLinks.linkedin} platform="linkedin" className="hero-social-item" />}
+                    {heroData.socialLinks.twitter && <SocialLink href={heroData.socialLinks.twitter} platform="twitter" className="hero-social-item" />}
+                    {heroData.socialLinks.github && <SocialLink href={heroData.socialLinks.github} platform="github" className="hero-social-item" />}
+                  </div>
+                )}
             </div>
           </div>
-          
+
           {/* Right Section - Enhanced Image and Overlay */}
           <div className="relative z-40">
             {/* Profile Image Container */}
             <div className="relative group">
               {/* Professional Image with enhanced styling */}
-              <div className="h-[600px]  relative flex items-center justify-center rounded-3xl overflow-hidden shadow-2xl border border-white/10 group">
-                {heroData.personImage ? (
-                  <img
-                    src={heroData.personImage}
-                    alt={`${heroData.name || 'Person'} - ${heroData.title || 'Title'}`}
-                    className="w-full h-full object-contain object-bottom"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-800/50 text-gray-400">
-                    <div className="text-center">
-                      <svg className="w-24 h-24 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <p>Add person image in admin</p>
-                    </div>
-                  </div>
-                )}
 
-                {/* Enhanced Gradient Overlays */}
-                <div className="absolute inset-0 bg-linear-to-t from-black/20 via-transparent to-transparent"></div>
-                <div className="gsap-parallax-bg absolute bottom-0 right-0 w-96 h-96 bg-linear-to-tl from-pink-500/40 to-pink-600/20 rounded-full opacity-70 transform translate-x-24 translate-y-24 blur-3xl"></div>
-                <div className="gsap-parallax-bg absolute top-0 left-0 w-64 h-64 bg-linear-to-br from-blue-500/20 to-purple-500/20 rounded-full opacity-50 transform -translate-x-16 -translate-y-16 blur-2xl"></div>
-              </div>
+              {heroData.personImage ? (
+                <img
+                  src={heroData.personImage}
+                  alt={`${heroData.name || 'Person'} - ${heroData.title || 'Title'}`}
+                  className="w-full h-full object-contain object-bottom rounded-b-full "
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-800/50 text-gray-400">
+                  <div className="text-center">
+                    <svg className="w-24 h-24 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p>Add person image in admin</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Enhanced Gradient Overlays */}
+              {/* <div className="absolute inset-0 bg-linear-to-t from-black/20 via-transparent to-transparent"></div> */}
+              {/* <div className="gsap-parallax-bg absolute bottom-0 right-0 w-96 h-96 bg-linear-to-tl from-pink-500/40 to-pink-600/20 rounded-full opacity-70 transform translate-x-24 translate-y-24 blur-3xl"></div> */}
+              {/* <div className="gsap-parallax-bg absolute top-0 left-0 w-64 h-64 bg-linear-to-br from-blue-500/20 to-purple-500/20 rounded-full opacity-50 transform -translate-x-16 -translate-y-16 blur-2xl"></div> */}
+
 
               {/* Enhanced Floating Elements */}
-              <div className="absolute -top-6 -left-6 w-24 h-24 bg-pink-500/30 rounded-full blur-xl"></div>
-              <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-pink-400/20 rounded-full blur-2xl"></div>
-              <div className="absolute top-1/2 -right-8 w-16 h-16 bg-blue-500/20 rounded-full blur-lg transition-all duration-1000 ease-in-out"></div>
+              {/* <div className="absolute -top-6 -left-6 w-24 h-24 bg-pink-500/30 rounded-full blur-xl"></div> */}
+              {/* <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-pink-400/20 rounded-full blur-2xl"></div> */}
+              {/* <div className="absolute top-1/2 -right-8 w-16 h-16 bg-blue-500/20 rounded-full blur-lg transition-all duration-1000 ease-in-out"></div> */}
 
               {/* Experience Badge */}
               {heroData?.experience && (
@@ -233,7 +261,7 @@ const Hero = () => {
           </div>
         </div>
       </div>
-      
+
     </section>
   );
 };

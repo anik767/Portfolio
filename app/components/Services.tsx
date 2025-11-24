@@ -100,7 +100,7 @@ const Services = () => {
   };
 
   const renderSkeleton = () => (
-    <section id="services" className="py-24 relative">
+    <section id="services" className="pb-24 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-20">
           <div className="h-6 w-40 mx-auto mb-4 bg-gray-200 rounded-full animate-pulse" />
@@ -133,7 +133,7 @@ const Services = () => {
   }
 
   return (
-    <section id="services" className="py-24 relative">
+    <section id="services" className="pb-24 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div id="services-header" className="text-center mb-20">
           {meta?.heading && (
@@ -149,7 +149,7 @@ const Services = () => {
               {meta.heading}
             </Text>
           )}
-          <div className="w-24 h-1.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 mx-auto mb-6 rounded-full"></div>
+          <div className="w-24 h-1.5 bg-gradient-to-r from-teal-300 via-emerald-400 to-green-500 mx-auto rounded-full mb-4"></div>
           {meta?.subheading && (
             <Text 
               variant="body" 

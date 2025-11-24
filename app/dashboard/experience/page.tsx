@@ -16,6 +16,8 @@ type ExperienceItem = {
   description: string;
   technologies: string[];
   achievements: string[];
+  technologiesInput: string;
+  achievementsInput: string;
 };
 
 const emptyItem = (): ExperienceItem => ({
@@ -28,6 +30,8 @@ const emptyItem = (): ExperienceItem => ({
   description: "",
   technologies: [],
   achievements: [],
+  technologiesInput: "",
+  achievementsInput: "",
 });
 
 export default function ExperienceAdminPage() {
@@ -48,17 +52,23 @@ export default function ExperienceAdminPage() {
         setSubheading(data.subheading ?? "");
         if (Array.isArray(data.items) && data.items.length > 0) {
           setItems(
-            data.items.map((item: ExperienceItem) => ({
-              company: item.company ?? "",
-              position: item.position ?? "",
-              duration: item.duration ?? "",
-              location: item.location ?? "",
-              logo: item.logo ?? "",
-              logoPublicId: item.logoPublicId ?? "",
-              description: item.description ?? "",
-              technologies: Array.isArray(item.technologies) ? item.technologies : [],
-              achievements: Array.isArray(item.achievements) ? item.achievements : [],
-            }))
+            data.items.map((item: ExperienceItem) => {
+              const technologies = Array.isArray(item.technologies) ? item.technologies : [];
+              const achievements = Array.isArray(item.achievements) ? item.achievements : [];
+              return {
+                company: item.company ?? "",
+                position: item.position ?? "",
+                duration: item.duration ?? "",
+                location: item.location ?? "",
+                logo: item.logo ?? "",
+                logoPublicId: item.logoPublicId ?? "",
+                description: item.description ?? "",
+                technologies,
+                achievements,
+                technologiesInput: technologies.join(", "),
+                achievementsInput: achievements.join(", "),
+              };
+            })
           );
         } else {
           setItems([]);
@@ -99,7 +109,20 @@ export default function ExperienceAdminPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ heading, subheading, items }),
+        body: JSON.stringify({
+          heading,
+          subheading,
+          items: items.map((item: ExperienceItem) => {
+            const { technologiesInput, achievementsInput, ...rest } = item;
+            void technologiesInput;
+            void achievementsInput;
+            return {
+              ...rest,
+              technologies: rest.technologies.map((tech) => tech.trim()).filter(Boolean),
+              achievements: rest.achievements.map((ach) => ach.trim()).filter(Boolean),
+            };
+          }),
+        }),
       });
       const data = await res.json();
       if (!data.success) {
@@ -130,16 +153,33 @@ export default function ExperienceAdminPage() {
     setItems((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const listInputFieldMap = {
+    technologies: "technologiesInput",
+    achievements: "achievementsInput",
+  } as const;
+
+  const parseListInput = (value: string) =>
+    value
+      .split(/[\n,]/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+
   const updateListFromText = (
     index: number,
     field: "technologies" | "achievements",
     value: string
   ) => {
-    const parsed = value
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
-    updateItem(index, field, parsed);
+    const parsed = parseListInput(value);
+    const inputField = listInputFieldMap[field];
+    setItems((prev) => {
+      const copy = [...prev];
+      copy[index] = {
+        ...copy[index],
+        [field]: parsed,
+        [inputField]: value,
+      };
+      return copy;
+    });
   };
 
   const handleLogoUpload = (index: number, image: UploadedImage | null) => {
@@ -155,8 +195,14 @@ export default function ExperienceAdminPage() {
   };
 
   const stats = useMemo(() => {
-    const totalTechnologies = items.reduce((sum, item) => sum + item.technologies.length, 0);
-    const totalAchievements = items.reduce((sum, item) => sum + item.achievements.length, 0);
+    const totalTechnologies = items.reduce(
+      (sum, item) => sum + item.technologies.filter(Boolean).length,
+      0
+    );
+    const totalAchievements = items.reduce(
+      (sum, item) => sum + item.achievements.filter(Boolean).length,
+      0
+    );
     return {
       roles: items.length,
       techCount: totalTechnologies,
@@ -319,7 +365,7 @@ export default function ExperienceAdminPage() {
                     label=""
                     type="textarea"
                     rows={3}
-                    value={item.technologies.join(", ")}
+                    value={item.technologiesInput ?? item.technologies.join(", ")}
                     onChange={(e) => updateListFromText(index, "technologies", e.target.value)}
                     placeholder="Next.js, React, GraphQL, Storybook"
                   />
@@ -331,7 +377,7 @@ export default function ExperienceAdminPage() {
                     label=""
                     type="textarea"
                     rows={3}
-                    value={item.achievements.join(", ")}
+                    value={item.achievementsInput ?? item.achievements.join(", ")}
                     onChange={(e) => updateListFromText(index, "achievements", e.target.value)}
                     placeholder="Shipped redesign increasing signups 38%, Led team of 5 engineers"
                   />

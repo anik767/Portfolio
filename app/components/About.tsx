@@ -51,21 +51,75 @@ const About = () => {
   if (loading) {
     return (
       <section id="about" className="py-24 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 w-48 bg-gray-200 rounded-full mx-auto" />
-            <div className="h-4 w-64 bg-gray-200 rounded-full mx-auto" />
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
-              <div className="h-[500px] bg-gray-100 rounded-2xl" />
-              <div className="space-y-4">
-                <div className="h-6 bg-gray-100 rounded-full w-3/4" />
-                <div className="h-4 bg-gray-100 rounded-full w-full" />
-                <div className="h-4 bg-gray-100 rounded-full w-5/6" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+          <div className="animate-pulse space-y-8">
+
+            {/* Title */}
+            <div className="h-8 w-56 bg-gray-200 rounded-full mx-auto" />
+            <div className="h-4 w-40 bg-gray-200 rounded-full mx-auto" />
+
+            {/* Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-10 items-start">
+
+              {/* Left Image / Banner */}
+              <div className="h-[500px] bg-gray-200 rounded-2xl w-full" />
+
+              {/* Right Content */}
+              <div className="space-y-5">
+
+                <div className="h-6 bg-gray-200 rounded-full w-3/4" />
+                <div className="h-4 bg-gray-200 rounded-full w-full" />
+                <div className="h-4 bg-gray-200 rounded-full w-5/6" />
+
+                <div className="space-y-3 pt-3">
+                  <div className="h-4 bg-gray-200 rounded-full w-4/5" />
+                  <div className="h-4 bg-gray-200 rounded-full w-4/5" />
+                  <div className="h-4 bg-gray-200 rounded-full w-4/5" />
+                </div>
+
+                <div className="space-y-3 pt-3">
+                  <div className="h-4 bg-gray-200 rounded-full w-5/6" />
+                  <div className="h-4 bg-gray-200 rounded-full w-5/6" />
+                </div>
+
+                <div className="space-y-3 pt-3">
+                  <div className="h-4 bg-gray-200 rounded-full w-4/6" />
+                  <div className="h-4 bg-gray-200 rounded-full w-4/6" />
+                </div>
+
+                <div className="flex items-center gap-4 pt-4">
+                  <div className="h-10 w-32 bg-gray-200 rounded-full" />
+                  <div className="h-10 w-32 bg-gray-200 rounded-full" />
+                </div>
+
               </div>
+
+
             </div>
+
           </div>
         </div>
-      </section>
+        {/* technical skills  */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div className="animate-pulse space-y-8">
+
+            {/* Title */}
+            <div className="h-8 w-56 bg-gray-200 rounded-full mx-auto" />
+            <div className="h-4 w-40 bg-gray-200 rounded-full mx-auto" />
+
+            {/* Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mt-10 items-start">
+              <div className="h-[100px] bg-gray-200 rounded-2xl w-full" />
+              <div className="h-[100px] bg-gray-200 rounded-2xl w-full" />
+              <div className="h-[100px] bg-gray-200 rounded-2xl w-full" />
+              <div className="h-[100px] bg-gray-200 rounded-2xl w-full" />
+              <div className="h-[100px] bg-gray-200 rounded-2xl w-full" />
+              <div className="h-[100px] bg-gray-200 rounded-2xl w-full" />
+            </div>
+
+          </div>
+        </div>
+      </section >
     );
   }
 
@@ -88,7 +142,7 @@ const About = () => {
           >
             {aboutData?.title || "About Me"}
           </Text>
-          <div className="w-24 h-1.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 mx-auto rounded-full mb-4"></div>
+          <div className="w-24 h-1.5 bg-gradient-to-r from-teal-300 via-emerald-400 to-green-500 mx-auto rounded-full mb-4"></div>
           {aboutData?.slogan && (
             <Text
               variant="body"
@@ -110,10 +164,10 @@ const About = () => {
             <div className="absolute  rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
             <div className="relative">
               {aboutData?.image ? (
-                <img 
-                  className=" w-auto mx-auto max-h-[500px] object-contain object-center rounded-2xl shadow-2xl  group-hover:scale-[1.02] transition-transform duration-500" 
-                  src={aboutData.image} 
-                  alt="Developer Profile" 
+                <img
+                  className=" w-auto mx-auto max-h-[500px] object-contain object-center rounded-2xl shadow-2xl  group-hover:scale-[1.02] transition-transform duration-500"
+                  src={aboutData.image}
+                  alt="Developer Profile"
                 />
               ) : (
                 <div className="max-h-[500px] flex items-center justify-center rounded-2xl shadow-2xl bg-gradient-to-br from-gray-50 to-white border-2 border-dashed border-gray-300">
@@ -169,10 +223,10 @@ const About = () => {
             {aboutData?.badges && aboutData.badges.length > 0 && (
               <div className="flex flex-wrap gap-4 mt-8">
                 {aboutData.badges.map((badge, index) => (
-                  <Badge 
+                  <Badge
                     key={index}
-                    variant={badge.variant as 'emerald' | 'outline' | 'cyanblue' | 'lime' | 'sunset' | 'dark' | 'elegant' | 'fuchsia' | 'sky' | 'ocean' | 'rose' | 'amethyst' | 'arctic' | 'skyblue' | 'turquoise' | 'neoncyan' | 'neonorange' | 'electriclime' | 'seafoam' | 'mintice' | 'watermelon' | 'plum' | 'magenta' | 'lavender' | 'violet'} 
-                    size="lg" 
+                    variant={badge.variant as 'emerald' | 'outline' | 'cyanblue' | 'lime' | 'sunset' | 'dark' | 'elegant' | 'fuchsia' | 'sky' | 'ocean' | 'rose' | 'amethyst' | 'arctic' | 'skyblue' | 'turquoise' | 'neoncyan' | 'neonorange' | 'electriclime' | 'seafoam' | 'mintice' | 'watermelon' | 'plum' | 'magenta' | 'lavender' | 'violet'}
+                    size="lg"
                     className="hover:scale-105 transition-transform cursor-pointer"
                   >
                     {badge.text}
@@ -197,32 +251,32 @@ const About = () => {
               >
                 Technical Skills
               </Text>
-              <div className="w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full"></div>
+              <div className="w-24 h-1.5 bg-gradient-to-r from-teal-300 via-emerald-400 to-green-500 mx-auto rounded-full mb-4"></div>
             </div>
             <div id="technical-skills" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {skills.map((skill, index) => (
-              <Card 
-                key={index} 
-                variant="elevated" 
-                hover="lift" 
-                shadow="lg"
-                className="group hover:shadow-2xl transition-all duration-300 border border-gray-100"
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <Text variant="body" fontFamily="poppins" weight="semibold" color="black">
-                    {skill.name}
-                  </Text>
-                  <Text variant="small" fontFamily="poppins" weight="bold" color="black" className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    {skill.level}%
-                  </Text>
-                </div>
-                <div className="w-full bg-gradient-to-r from-gray-100 to-gray-200 rounded-full h-3 overflow-hidden">
-                  <div
-                    className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-3 rounded-full transition-all duration-1000 ease-out group-hover:shadow-lg"
-                    style={{ width: `${skill.level}%` }}
-                  ></div>
-                </div>
-              </Card>
+                <Card
+                  key={index}
+                  variant="elevated"
+                  hover="lift"
+                  shadow="lg"
+                  className="group hover:shadow-2xl transition-all duration-300 border border-gray-100"
+                >
+                  <div className="flex justify-between items-center mb-4">
+                    <Text variant="body" fontFamily="poppins" weight="semibold" color="black">
+                      {skill.name}
+                    </Text>
+                    <Text variant="small" fontFamily="poppins" weight="bold" color="black" className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                      {skill.level}%
+                    </Text>
+                  </div>
+                  <div className="w-full bg-gradient-to-r from-gray-100 to-gray-200 rounded-full h-3 overflow-hidden">
+                    <div
+                      className="w-full h-3 bg-gradient-to-r from-teal-300 via-emerald-400 to-green-500 rounded-full mb-4"
+                      style={{ width: `${skill.level}%` }}
+                    ></div>
+                  </div>
+                </Card>
               ))}
             </div>
           </div>
