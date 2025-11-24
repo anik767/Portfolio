@@ -27,3 +27,7 @@ body {
   color: var(--foreground);
   font-family: var(--rajdhani);
 }
+
+html {
+  scroll-behavior: smooth;
+}
