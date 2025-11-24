@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Text, Card, Badge, Button } from './theam';
-import Image from 'next/image';
 
 type BadgeVariant = 'emerald' | 'outline' | 'cyanblue' | 'lime' | 'sunset' | 'dark' | 'elegant' | 'fuchsia' | 'sky' | 'ocean' | 'rose' | 'amethyst' | 'arctic' | 'skyblue' | 'turquoise' | 'neoncyan' | 'neonorange' | 'electriclime' | 'seafoam' | 'mintice' | 'watermelon' | 'plum' | 'magenta' | 'lavender' | 'violet';
 
@@ -99,14 +98,14 @@ const Projects = ({ projectsData }: ProjectsProps) => {
                     `;
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent group-hover:from-black/60 transition-all duration-500"></div>
-                <div className="absolute top-4 right-4 z-10">
-                  <Badge variant={(project.statusVariant as BadgeVariant) || 'emerald'} size="sm" className="backdrop-blur-sm bg-white/20 border border-white/20 hover:scale-105 transition-transform">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/0 via-black/10 to-transparent group-hover:from-black/60 transition-all duration-500 z-10"></div>
+                <div className="absolute bottom-4 right-4 z-20">
+                  <Badge variant= 'emerald' size="sm" className=" bg-white/90 ">
                     {project.status}
                   </Badge>
                 </div>
-                <div className="absolute top-4 left-4 z-10">
-                  <Badge variant={(project.categoryVariant as BadgeVariant) || 'emerald'} size="sm" className="backdrop-blur-sm bg-white/20 border border-white/20 hover:scale-105 transition-transform">
+                <div className="absolute bottom-4 left-4 z-20">
+                  <Badge variant= 'emerald' size="sm" className=" bg-white/90 ">
                     {project.category}
                   </Badge>
                 </div>
